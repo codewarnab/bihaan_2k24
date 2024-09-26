@@ -1,5 +1,5 @@
 "use client";
-import { useState,useEffect } from "react";
+import { useState } from "react";
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -8,14 +8,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
+import { Filter as FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Filter as FilterIcon,User } from "lucide-react"; 
-import Link from "next/link";
-import { useUser } from "@/lib/store/user";
+import UserMenu from "@/components/nav";
 
 export default function EventLogs() {
 
-    
+
     const logs = [
         { name: "Arnab", email: "arnab@example.com", action: "marked Student 1 (cse2024029) food collected", type: "food collected", timestamp: "2023-04-15 10:30 AM" },
         { name: "John Doe", email: "john@example.com", action: "marked Student 3 (ece2024023) food collected", type: "food collected", timestamp: "2023-04-16 2:45 PM" },
@@ -26,13 +25,8 @@ export default function EventLogs() {
     const [filteredLogs, setFilteredLogs] = useState(logs);
     type ActionFilter = "all" | "food collected" | "food not collected" | "merchandise collected" | "merchandise not collected";
     type TimeFilter = "all" | "last 1 hour" | "last 2 hours" | "last 3 hours" | "last 6 hours";
-    
-    const setUser = useUser((state) => state.setUser);
-    const [isMounted, setIsMounted] = useState(false); // Flag for client-side rendering
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    useEffect(() => {
-        setIsMounted(true); // Update mounted state
-    }, []);
+
+
 
     const [selectedFilter, setSelectedFilter] = useState<ActionFilter>("all");
     const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
@@ -68,44 +62,18 @@ export default function EventLogs() {
         setFilteredLogs(filtered);
     };
 
-    const handleLogout = () => {
-        setUser(null); // Clear user state
-        document.cookie.split(";").forEach((c) => {
-            document.cookie = c.replace(/^ +/, "").split("=")[0] + "=;expires=" + new Date().toUTCString() + ";path=/";
-        });
-        window.location.reload(); 
-    };
-    const handleDropdownToggle = () => {
-        setDropdownOpen(prev => !prev);
-    };
+
     return (
         <div className="p-6 mx-4 md:mx-12">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Event Logs</h2>
-            <div className="absolute top-4 right-4 flex items-center">
-                <Link href="/">
-                    <Button variant="outline" size="sm" className="mr-2">
-                        Dashboard
-                    </Button>
-                </Link>
-                <div className="relative">
-                    <div
-                        className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold cursor-pointer"
-                        onClick={handleDropdownToggle}
-                    >
-                        <User className="w-6 h-6" />
-                    </div>
-                    {isMounted && dropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg">
-                            <div
-                                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                onClick={handleLogout}
-                            >
-                                Logout
-                            </div>
-                        </div>
-                    )}
-                </div>
+            <div className="relative">
+                <UserMenu
+                    firstLinkHref="/contact"
+                    firstLinkLabel="Conatact"
+                    secondLinkHref="/"
+                    secondLinkLabel="Dashboard"
+                />
             </div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">Event Logs</h2>
             <div className="flex space-x-4 mb-4">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Loader, User } from 'lucide-react';
+import { Search, Loader } from 'lucide-react';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { toast } from 'sonner';
-import { useUser } from "@/lib/store/user";
-import Link from 'next/link';
+
+import UserMenu from './nav';
 
 // Deterministic random number generator
 function seededRandom(seed: number) {
@@ -19,6 +19,8 @@ function seededRandom(seed: number) {
 // Mock data generation function
 const generateMockData = (count: number) => {
     const departments = ['CSE', 'ECE', 'ME', 'CE', 'EE'];
+    const foodPreferences = ['Veg', 'Non-Veg'];
+    const sizes = ['S', 'M', 'L', 'XL'];
     return Array.from({ length: count }, (_, i) => {
         const seed = i + 1;
         const department = departments[Math.floor(seededRandom(seed) * departments.length)];
@@ -31,6 +33,8 @@ const generateMockData = (count: number) => {
             attendance: seededRandom(seed * 3) > 0.5,
             foodCollected: false,
             merchandiseCollected: false,
+            foodPreference: foodPreferences[Math.floor(seededRandom(seed * 4) * foodPreferences.length)],
+            merchandiseSize: sizes[Math.floor(seededRandom(seed * 5) * sizes.length)],
             isLoading: false,
             foodLoading: false,
             merchandiseLoading: false,
@@ -41,13 +45,6 @@ const generateMockData = (count: number) => {
 export default function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('');
     const [data, setData] = useState(() => generateMockData(800));
-    const setUser = useUser((state) => state.setUser);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [isMounted, setIsMounted] = useState(false); // Flag for client-side rendering
-
-    useEffect(() => {
-        setIsMounted(true); // Update mounted state
-    }, []);
 
     const filteredData = useMemo(() => {
         return data.filter(item =>
@@ -121,31 +118,33 @@ export default function Dashboard() {
     const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
         const item = filteredData[index];
         return (
-            <div style={style} className="grid grid-cols-6 gap-4 px-6 py-4 border-b hover:bg-gray-50">
-                <div>{item.name}</div>
-                <div>{item.collegeRoll}</div>
-                <div>{item.email}</div>
-                <div>{item.phone}</div>
-                <div>
+            <div style={{ ...style, width: '1160px' }} className="flex items-center border-b hover:bg-gray-50">
+                <div className="w-[150px] p-4 ">{item.name}</div>
+                <div className="w-[130px] p-4 truncate">{item.collegeRoll}</div>
+                <div className="w-[250px] p-4 truncate">{item.email}</div>
+                <div className="w-[180px] p-4 truncate">{item.phone}</div>
+                <div className="w-[100px] p-4 ">{item.foodPreference}</div>
+                <div className="w-[50px] p-4 ">{item.merchandiseSize}</div>
+                <div className="w-[150px] p-4">
                     <Button
                         variant={item.foodCollected ? "outline" : "default"}
                         size="sm"
                         onClick={() => toggleFoodCollection(item.id)}
                         disabled={item.foodLoading}
-                        className="w-24"
+                        className="w-28"
                     >
                         {item.foodLoading ? (
                             <Loader className="mr-2 h-4 w-4 animate-spin" />
                         ) : item.foodCollected ? 'Collected' : 'Not Collected'}
                     </Button>
                 </div>
-                <div>
+                <div className="w-[150px] p-4">
                     <Button
                         variant={item.merchandiseCollected ? "outline" : "default"}
                         size="sm"
                         onClick={() => toggleMerchandiseCollection(item.id)}
                         disabled={item.merchandiseLoading}
-                        className="w-24"
+                        className="w-28"
                     >
                         {item.merchandiseLoading ? (
                             <Loader className="mr-2 h-4 w-4 animate-spin" />
@@ -156,54 +155,16 @@ export default function Dashboard() {
         );
     };
 
-    const handleDropdownToggle = () => {
-        setDropdownOpen(prev => !prev);
-    };
-
-    const handleLogout = () => {
-        setUser(null); // Clear user state
-        document.cookie.split(";").forEach((c) => {
-            document.cookie = c.replace(/^ +/, "").split("=")[0] + "=;expires=" + new Date().toUTCString() + ";path=/";
-        });
-        window.location.reload(); // Refresh the page
-    };
-
     return (
         <div className="container mx-auto p-8 relative">
             <h1 className="text-3xl font-bold mb-6">Bihaan 2024 Dashboard</h1>
-            {/* User Avatar */}
-            <div className="absolute top-4 right-4 flex items-center">
-                <Link href="/logs">
-                    <Button variant="outline" size="sm" className="mr-2">
-                        Logs
-                    </Button>
-                </Link>
-                <Link href="/contact">
-                    <Button variant="outline" size="sm" className="mr-2">
-                        contact
-                    </Button>
-                </Link>
-                <div className="relative">
-                    <div
-                        className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold cursor-pointer"
-                        onClick={handleDropdownToggle}
-                    >
-                        <User className="w-6 h-6" />
-                    </div>
-                    {isMounted && dropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg">
-                            <div
-                                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                                onClick={handleLogout}
-                            >
-                                Logout
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+            <UserMenu
+                firstLinkHref="/logs"
+                firstLinkLabel="Logs"
+                secondLinkHref="/contact"
+                secondLinkLabel="Contact"
+            />
             <div className="mb-6">
-                {/* Total Students, Food Collected, and Merchandise Collected */}
                 <div className="text-lg mb-4">
                     Total Students: {totalStudents}, Food Collected: {foodCollected}, Merchandise Collected: {merchandiseCollected}
                 </div>
@@ -218,27 +179,32 @@ export default function Dashboard() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={24} />
                 </div>
             </div>
-            <div className="grid grid-cols-6 gap-4 px-6 py-4 font-bold border-b">
-                <div>Name</div>
-                <div>College Roll</div>
-                <div>Email</div>
-                <div>Phone</div>
-                <div>Food </div>
-                <div>Merchandise </div>
-            </div>
-            <div className="mt-4" style={{ height: '70vh' }}>
-                <AutoSizer>
-                    {({ height, width }) => (
-                        <List
-                            height={height}
-                            itemCount={filteredData.length}
-                            itemSize={50}
-                            width={width}
-                        >
-                            {Row}
-                        </List>
-                    )}
-                </AutoSizer>
+            <div className="overflow-x-auto">
+                <div className="flex items-center font-bold border-b bg-gray-100 rounded-sm">
+                    <div className="w-[150px] p-4">Name</div>
+                    <div className="w-[150px] p-4">College Roll</div>
+                    <div className="w-[250px] p-4">Email</div>
+                    <div className="w-[180px] p-4">Phone</div>
+                    <div className="w-[100px] p-4">Veg/Non</div>
+                    <div className="w-[70px] p-4">Size</div>
+                    <div className="w-[130px] p-4">Food</div>
+                    <div className="w-[150px] p-4">Merchandise</div>
+                </div>
+                <div className="mt-4" style={{ height: '70vh' }}>
+                    <AutoSizer>
+                        {({ height, width }) => (
+                            <List
+                                height={height}
+                                itemCount={filteredData.length}
+                                itemSize={60}
+                                width={width}
+                                innerElementType="div"
+                            >
+                                {Row}
+                            </List>
+                        )}
+                    </AutoSizer>
+                </div>
             </div>
         </div>
     );
