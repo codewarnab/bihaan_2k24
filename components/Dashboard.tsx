@@ -1,159 +1,115 @@
-'use client';
-
-import { useState, useMemo, useCallback } from 'react';
+"use client";
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Loader } from 'lucide-react';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { toast } from 'sonner';
 
 import UserMenu from './nav';
+import { getAllPeople } from "@/utils/functions/getStudentInfo";
+import { StudentData } from "@/lib/types/student";
+import { toggleFoodCollection } from "@/utils/functions/toggleFoodCollection";
+import { toggleMerchandiseCollection } from "@/utils/functions/toggleMerchCollection";
 
-// Deterministic random number generator
-function seededRandom(seed: number) {
-    const x = Math.sin(seed++) * 10000;
-    return x - Math.floor(x);
-}
-
-// Mock data generation function
-const generateMockData = (count: number) => {
-    const departments = ['CSE', 'ECE', 'ME', 'CE', 'EE'];
-    const foodPreferences = ['Veg', 'Non-Veg'];
-    const sizes = ['S', 'M', 'L', 'XL'];
-    return Array.from({ length: count }, (_, i) => {
-        const seed = i + 1;
-        const department = departments[Math.floor(seededRandom(seed) * departments.length)];
-        return {
-            id: i + 1,
-            name: `Student ${i + 1}`,
-            collegeRoll: `${department.toLowerCase()}2024${String(i + 1).padStart(3, '0')}`,
-            email: `${department.toLowerCase()}2024${String(i + 1).padStart(3, '0')}@rcciit.org.in`,
-            phone: `+91${Math.floor(seededRandom(seed * 2) * 9000000000 + 1000000000)}`,
-            attendance: seededRandom(seed * 3) > 0.5,
-            foodCollected: false,
-            merchandiseCollected: false,
-            foodPreference: foodPreferences[Math.floor(seededRandom(seed * 4) * foodPreferences.length)],
-            merchandiseSize: sizes[Math.floor(seededRandom(seed * 5) * sizes.length)],
-            isLoading: false,
-            foodLoading: false,
-            merchandiseLoading: false,
-        };
-    });
-}
 
 export default function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [data, setData] = useState(() => generateMockData(800));
+    const [data, setData] = useState<StudentData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [foodLoadingIds, setFoodLoadingIds] = useState<Set<number>>(new Set());
+    const [merchLoadingIds, setMerchLoadingIds] = useState<Set<number>>(new Set());
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            const peopleData = await getAllPeople();
+            if (peopleData) {
+                setData(peopleData);
+            }
+            setIsLoading(false);
+        };
+        fetchData();
+    }, []);
 
     const filteredData = useMemo(() => {
         return data.filter(item =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.collegeRoll.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.phone.includes(searchTerm) ||
-            item.email.toLowerCase().includes(searchTerm.toLowerCase())
+            (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+            (item.college_roll?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+            (item.phone?.toString().includes(searchTerm) ?? false) ||
+            (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
         );
     }, [data, searchTerm]);
 
     const totalStudents = filteredData.length;
-    const foodCollected = filteredData.filter(item => item.foodCollected).length;
-    const merchandiseCollected = filteredData.filter(item => item.merchandiseCollected).length;
+    const foodCollected = filteredData.filter(item => item.food).length;
+    const merchandiseCollected = filteredData.filter(item => item.merch).length;
 
     const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
     }, []);
 
-    const toggleFoodCollection = useCallback((id: number) => {
-        setData(prevData =>
-            prevData.map(student =>
-                student.id === id
-                    ? { ...student, foodLoading: true }
-                    : student
-            )
-        );
 
-        setTimeout(() => {
-            setData(prevData =>
-                prevData.map(student =>
-                    student.id === id
-                        ? {
-                            ...student,
-                            foodCollected: !student.foodCollected,
-                            foodLoading: false,
-                        }
-                        : student
-                )
-            );
-            const foodStatus = data.find((s) => s.id === id)?.foodCollected ? 'not collected' : 'collected';
-            toast.success(`Food has been marked as ${foodStatus} for student: ${data.find((s) => s.id === id)?.name}`);
-        }, 1000);
-    }, [data]);
 
-    const toggleMerchandiseCollection = useCallback((id: number) => {
-        setData(prevData =>
-            prevData.map(student =>
-                student.id === id
-                    ? { ...student, merchandiseLoading: true }
-                    : student
-            )
-        );
-
-        setTimeout(() => {
-            setData(prevData =>
-                prevData.map(student =>
-                    student.id === id
-                        ? {
-                            ...student,
-                            merchandiseCollected: !student.merchandiseCollected,
-                            merchandiseLoading: false,
-                        }
-                        : student
-                )
-            );
-            const merchStatus = data.find((s) => s.id === id)?.merchandiseCollected ? 'not collected' : 'collected';
-            toast.success(`Merchandise has been marked as ${merchStatus} for student: ${data.find((s) => s.id === id)?.name}`);
-        }, 1000);
-    }, [data]);
+   
 
     const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
         const item = filteredData[index];
+
+        if (isLoading) {
+            return (
+                <div style={{ ...style, width: '100%' }} className="flex items-center border-b hover:bg-gray-50 animate-pulse">
+                    <div className="w-[150px] p-4 bg-gray-200" />
+                    <div className="w-[130px] p-4 bg-gray-200" />
+                    <div className="w-[250px] p-4 bg-gray-200" />
+                    <div className="w-[180px] p-4 bg-gray-200" />
+                    <div className="w-[100px] p-4 bg-gray-200" />
+                    <div className="w-[50px] p-4 bg-gray-200" />
+                    <div className="w-[150px] p-4 bg-gray-200" />
+                    <div className="w-[150px] p-4 bg-gray-200" />
+                </div>
+            );
+        }
+
+        // Render actual data when not loading
         return (
-            <div style={{ ...style, width: '1160px' }} className="flex items-center border-b hover:bg-gray-50">
-                <div className="w-[150px] p-4 ">{item.name}</div>
-                <div className="w-[130px] p-4 truncate">{item.collegeRoll}</div>
+            <div style={{ ...style, width: '100%' }} className="flex items-center border-b hover:bg-gray-50">
+                <div className="w-[150px] p-4">{item.name}</div>
+                <div className="w-[130px] p-4 truncate">{item.college_roll}</div>
                 <div className="w-[250px] p-4 truncate">{item.email}</div>
                 <div className="w-[180px] p-4 truncate">{item.phone}</div>
-                <div className="w-[100px] p-4 ">{item.foodPreference}</div>
-                <div className="w-[50px] p-4 ">{item.merchandiseSize}</div>
+                <div className="w-[100px] p-4">{item.veg_nonveg}</div>
+                <div className="w-[50px] p-4">{item.tshirt_size}</div>
                 <div className="w-[150px] p-4">
                     <Button
-                        variant={item.foodCollected ? "outline" : "default"}
+                        variant={item.food ? "outline" : "default"}
                         size="sm"
-                        onClick={() => toggleFoodCollection(item.id)}
-                        disabled={item.foodLoading}
+                        onClick={() => toggleFoodCollection(item.id, data, setData, setFoodLoadingIds)}
+                        disabled={foodLoadingIds.has(item.id)}
                         className="w-28"
                     >
-                        {item.foodLoading ? (
+                        {foodLoadingIds.has(item.id) ? (
                             <Loader className="mr-2 h-4 w-4 animate-spin" />
-                        ) : item.foodCollected ? 'Collected' : 'Not Collected'}
+                        ) : item.food ? 'Collected' : 'Not Collected'}
                     </Button>
                 </div>
                 <div className="w-[150px] p-4">
                     <Button
-                        variant={item.merchandiseCollected ? "outline" : "default"}
+                        variant={item.merch ? "outline" : "default"}
                         size="sm"
-                        onClick={() => toggleMerchandiseCollection(item.id)}
-                        disabled={item.merchandiseLoading}
+                        onClick={() => toggleMerchandiseCollection(item.id, data, setData, setMerchLoadingIds)}
+                        disabled={merchLoadingIds.has(item.id)}
                         className="w-28"
                     >
-                        {item.merchandiseLoading ? (
+                        {merchLoadingIds.has(item.id) ? (
                             <Loader className="mr-2 h-4 w-4 animate-spin" />
-                        ) : item.merchandiseCollected ? 'Collected' : 'Not Collected'}
+                        ) : item.merch ? 'Collected' : 'Not Collected'}
                     </Button>
                 </div>
             </div>
         );
     };
+
 
     return (
         <div className="container mx-auto p-8 relative">
@@ -185,20 +141,19 @@ export default function Dashboard() {
                     <div className="w-[150px] p-4">College Roll</div>
                     <div className="w-[250px] p-4">Email</div>
                     <div className="w-[180px] p-4">Phone</div>
-                    <div className="w-[100px] p-4">Veg/Non</div>
-                    <div className="w-[70px] p-4">Size</div>
-                    <div className="w-[130px] p-4">Food</div>
-                    <div className="w-[150px] p-4">Merchandise</div>
+                    <div className="w-[100px] p-4">Veg/NonVeg</div>
+                    <div className="w-[50px] p-4">Size</div>
+                    <div className="w-[150px] p-4">Food</div>
+                    <div className="w-[150px] p-4">Merch</div>
                 </div>
-                <div className="mt-4" style={{ height: '70vh' }}>
+                <div style={{ height: '500px', width: '100%' }}>
                     <AutoSizer>
                         {({ height, width }) => (
                             <List
                                 height={height}
-                                itemCount={filteredData.length}
-                                itemSize={60}
                                 width={width}
-                                innerElementType="div"
+                                itemCount={totalStudents}
+                                itemSize={50}
                             >
                                 {Row}
                             </List>
