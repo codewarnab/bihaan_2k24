@@ -1,4 +1,3 @@
-// src/components/UserMenu.tsx
 
 'use client';
 

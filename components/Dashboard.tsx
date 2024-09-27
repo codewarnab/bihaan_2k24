@@ -16,13 +16,12 @@ import { toggleMerchandiseCollection } from "@/utils/functions/toggleMerchCollec
 export default function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('');
     const [data, setData] = useState<StudentData[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [foodLoadingIds, setFoodLoadingIds] = useState<Set<number>>(new Set());
     const [merchLoadingIds, setMerchLoadingIds] = useState<Set<number>>(new Set());
 
     useEffect(() => {
         const fetchData = async () => {
-            setIsLoading(true);
             const peopleData = await getAllPeople();
             if (peopleData) {
                 setData(peopleData);
@@ -56,10 +55,10 @@ export default function Dashboard() {
     const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
         const item = filteredData[index];
 
-        if (isLoading) {
+        if (isLoading || data.length == 0) {
             return (
                 <div style={{ ...style, width: '100%' }} className="flex items-center border-b hover:bg-gray-50 animate-pulse">
-                    <div className="w-[150px] p-4 bg-gray-200" />
+                    <div className="w-[150px] p-4 bg-gray-200 " />
                     <div className="w-[130px] p-4 bg-gray-200" />
                     <div className="w-[250px] p-4 bg-gray-200" />
                     <div className="w-[180px] p-4 bg-gray-200" />
@@ -153,7 +152,7 @@ export default function Dashboard() {
                                 height={height}
                                 width={width}
                                 itemCount={totalStudents}
-                                itemSize={50}
+                                itemSize={50} // Height of each row
                             >
                                 {Row}
                             </List>
