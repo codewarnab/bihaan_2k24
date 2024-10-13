@@ -1,7 +1,7 @@
 export type StudentData = {
     college_roll: string | null;
     dept: string | null;
-    email: string | null;
+    email: string ;
     food: boolean | null;
     id: number;
     merch: boolean | null;
@@ -9,5 +9,6 @@ export type StudentData = {
     phone: number | null;
     tshirt_size: string | null;
     veg_nonveg: string | null;
+    status: "pending" | "sending" | "sent" | "failed";
+    reason: string;
 };
-
