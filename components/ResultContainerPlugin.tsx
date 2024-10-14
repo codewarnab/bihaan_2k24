@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
 import { Mail, Phone, Utensils, Shirt, Building2, QrCode, RotateCcw, AlertCircle } from "lucide-react"
+import { toast } from "sonner";
 
 type ScanResult = {
     name: string
@@ -45,6 +46,7 @@ export default function Component({ results }: { results: Result[] }) {
                 setIsOpen(true)
             } catch (error) {
                 console.error("Failed to parse QR code data:", error)
+                toast.error("Failed to parse QR code data",error.message)
             }
         }
     }, [results])
