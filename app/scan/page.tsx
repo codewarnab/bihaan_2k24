@@ -31,8 +31,9 @@ export default function QRCodeScanner() {
                 verbose={true}
                 setHtml5QrcodeScannerState = {setHtml5QrcodeScannerState}
                 />
-            <ResultContainerPlugin results={decodedResults}
-             hansleScanAgain={handleScanAgain}
+            <ResultContainerPlugin
+                results={decodedResults}
+             handleScanAgain={handleScanAgain}
             />
         </div>
     );
