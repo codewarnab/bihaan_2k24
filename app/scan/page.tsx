@@ -7,12 +7,11 @@ import ResultContainerPlugin from "@/components/ResultContainerPlugin";
 export default function QRCodeScanner() {
     const [decodedResults, setDecodedResults] = useState([]);
     const onNewScanResult = (decodedResult: any) => {
-        
+
         console.log("App [result]", decodedResult);
         setDecodedResults(prev => [...prev, decodedResult]);
     };
-    const [Html5QrcodeScannerState, setHtml5QrcodeScannerState] = useState(null);
-    console.log("App [Html5QrcodeScannerState]", Html5QrcodeScannerState);
+    
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col p-4  justify-center ">
@@ -23,7 +22,6 @@ export default function QRCodeScanner() {
                     disableFlip={false}
                     qrCodeSuccessCallback={onNewScanResult}
                     verbose={true}
-                    setHtml5QrcodeScannerState={setHtml5QrcodeScannerState}
                 />
             <ResultContainerPlugin results={decodedResults} />
         </div>
