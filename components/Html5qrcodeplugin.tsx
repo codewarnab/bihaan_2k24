@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useEffect } from 'react';
 
@@ -8,8 +9,9 @@ interface Html5QrcodePluginProps {
     aspectRatio?: number;
     disableFlip?: boolean;
     verbose?: boolean;
-    qrCodeSuccessCallback: (decodedText: string, result: any) => void; // Define the type as per your requirements
-    qrCodeErrorCallback?: (error: string) => void; // Optional error callback
+    qrCodeSuccessCallback: (decodedText: string, result: any) => void; 
+    qrCodeErrorCallback?: (error: string) => void; 
+    setHtml5QrcodeScannerState?: (state: any) => void;
 }
 
 const qrcodeRegionId = "html5qr-code-full-region";
@@ -29,6 +31,10 @@ const createConfig = (props: Html5QrcodePluginProps) => {
     if (props.disableFlip !== undefined) {
         config.disableFlip = props.disableFlip;
     }
+    config.videoConstraints = {
+        facingMode: { exact: "environment" }
+    };
+
     return config;
 };
 
@@ -46,6 +52,10 @@ const Html5QrcodePlugin: React.FC<Html5QrcodePluginProps> = (props) => {
 
         const html5QrcodeScanner = new Html5QrcodeScanner(qrcodeRegionId, config, verbose);
         html5QrcodeScanner.render(props.qrCodeSuccessCallback, props.qrCodeErrorCallback);
+
+        if (props.setHtml5QrcodeScannerState) {
+            props.setHtml5QrcodeScannerState(html5QrcodeScanner.getState());
+        }
 
         // cleanup function when component will unmount
         return () => {
