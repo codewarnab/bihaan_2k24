@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import UserMenu from '@/components/nav'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { getAllPeople } from "@/utils/functions/getStudentInfo"
+import { getAllPeople } from "@/utils/functions/getStudentsInfo"
 import { StudentData } from "@/lib/types/student"
 import axios from "axios";
 

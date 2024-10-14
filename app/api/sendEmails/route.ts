@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
             veg_nonveg: student.veg_nonveg,
             tshirt_size: student.tshirt_size,
             dept: student.dept,
+            id: student.id,
             jwtToken: token,
         };
 

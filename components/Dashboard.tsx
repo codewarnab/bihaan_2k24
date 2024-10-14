@@ -7,7 +7,7 @@ import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { useUser } from '@/lib/store/user';
 import UserMenu from './nav';
-import { getAllPeople } from "@/utils/functions/getStudentInfo";
+import { getAllPeople } from "@/utils/functions/getStudentsInfo";
 import { StudentData } from "@/lib/types/student";
 import { toggleMerchandiseCollection } from "@/utils/functions/toggleMerchCollection";
 import { supabase } from '@/lib/supabase-client';
@@ -17,7 +17,7 @@ export default function Dashboard() {
     const [data, setData] = useState<StudentData[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [merchLoadingIds, setMerchLoadingIds] = useState<Set<number>>(new Set());
-    const {user} = useUser();
+    const { user } = useUser();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -79,7 +79,7 @@ export default function Dashboard() {
 
 
 
-   
+
 
     const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
         const item = filteredData[index];
@@ -109,14 +109,14 @@ export default function Dashboard() {
                 <div className="w-[100px] p-4">{item.veg_nonveg}</div>
                 <div className="w-[50px] p-4">{item.tshirt_size}</div>
                 <div className="w-[150px] p-4">
-                <div className="w-[50px] p-4">{item.food? "Collected": "Not Collcted"}</div>
+                    <div className="w-[50px] p-4">{item.food ? "Collected" : "Not Collcted"}</div>
                 </div>
                 <div className="w-[150px] p-4">
                     <Button
                         variant={item.merch ? "outline" : "default"}
                         size="sm"
-                        onClick={() => toggleMerchandiseCollection(item.id, data, setData, setMerchLoadingIds,user?.name || 'Unknown', user?.email || 'Unknown')}
-                        disabled={merchLoadingIds.has(item.id)|| item.merch! }
+                        onClick={() => toggleMerchandiseCollection(item.id, data, setData, setMerchLoadingIds, user?.name || 'Unknown', user?.email || 'Unknown')}
+                        disabled={merchLoadingIds.has(item.id) || item.merch!}
                         className="w-28"
                     >
                         {merchLoadingIds.has(item.id) ? (
