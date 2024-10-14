@@ -37,7 +37,7 @@ export default function QRCodeScanner() {
 
     const handleScanError = (err: string | Error) => {
         console.error("Camera error:", err);
-        setError("An error occurred while accessing the camera. Please ensure camera permissions are granted and you are using a supported device and browser.");
+        setError(`An error occurred while accessing the camera. Please ensure camera permissions are granted and you are using a supported device and browser.${err}`);
         setScanning(false);
     };
 
