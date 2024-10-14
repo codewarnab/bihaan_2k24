@@ -6,11 +6,18 @@ import ResultContainerPlugin from "@/components/ResultContainerPlugin";
 
 export default function QRCodeScanner() {
     const [decodedResults, setDecodedResults] = useState([]);
-    
+    const [scanningstate, setHtml5QrcodeScannerState] = useState(null);
+
     const onNewScanResult = (decodedResult: any) => {
         console.log("App [result]", decodedResult);
         setDecodedResults(prev => [...prev, decodedResult]);
     };
+
+    const handleScanAgain = () => {
+        setDecodedResults([]); // Clear previous results
+        setHtml5QrcodeScannerState(null); // Reset scanner state to trigger re-rendering
+    };
+    
     
 
     return (
@@ -21,9 +28,12 @@ export default function QRCodeScanner() {
                     qrbox={{ width: 300, height: 300 }}
                     disableFlip={false}
                     qrCodeSuccessCallback={onNewScanResult}
-                    verbose={true}
+                verbose={true}
+                setHtml5QrcodeScannerState = {setHtml5QrcodeScannerState}
                 />
-            <ResultContainerPlugin results={decodedResults} />
+            <ResultContainerPlugin results={decodedResults}
+             hansleScanAgain={handleScanAgain}
+            />
         </div>
     );
 }  

@@ -34,7 +34,7 @@ type Result = {
     }
 }
 
-export default function Component({ results }: { results: Result[] }) {
+export default function Component({ results ,handleScanAgain}: { results: Result[] , handleScanAgain: () => void}) {
     const [scanResult, setScanResult] = useState<ScanResult | null>(null)
     const [isOpen, setIsOpen] = useState(false)
 
@@ -98,7 +98,10 @@ export default function Component({ results }: { results: Result[] }) {
                     </div>
                 )}
                 <DrawerFooter>
-                    <Button onClick={handleClose} className="w-full">
+                    <Button onClick={() => {
+                        handleScanAgain()
+                        handleClose()
+                    }} className="w-full">
                         <RotateCcw className="w-4 h-4 mr-2" />
                         Scan Again
                     </Button>
