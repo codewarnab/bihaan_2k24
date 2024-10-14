@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, Utensils, Shirt, Building2, QrCode, RotateCcw, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import Html5QrcodePlugin from "@/components/Html5qrcodeplugin"; 
+import Html5QrcodePlugin from "@/components/Html5qrcodeplugin";
 
 type ScanResult = {
     name: string;
@@ -36,8 +36,16 @@ export default function QRCodeScanner() {
     };
 
     const handleScanError = (err: string | Error) => {
-        console.error("Camera error:", err);
-        setError(`An error occurred while accessing the camera. Please ensure camera permissions are granted and you are using a supported device and browser.${err}`);
+        let errorMessage = "An error occurred while accessing the camera. Please ensure camera permissions are granted and you are using a supported device and browser.";
+
+        // Append specific error details
+        if (err instanceof Error) {
+            errorMessage += ` Error: ${err.message}`;
+        } else {
+            errorMessage += ` Error: ${err}`;
+        }
+
+        setError(errorMessage);
         setScanning(false);
     };
 
