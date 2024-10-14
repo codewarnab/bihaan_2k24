@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -12,53 +12,92 @@ import {
 import { Filter as FilterIcon, Clock, User, Mail, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserMenu from "@/components/nav";
+import { supabase } from "@/lib/supabase-client";
+import { motion, AnimatePresence } from "framer-motion";
+interface Log {
+    id: number;
+    created_at: string;
+    organizer_name: string;
+    email: string;
+    actionType: string;
+    fresher_roll: string;
+}
 
 export default function EventLogs() {
-    const logs = [
-        { name: "Arnab", email: "arnab@example.com", action: "marked Student 1 (cse2024029) food collected", type: "food collected", timestamp: "2023-04-15 10:30 AM" },
-        { name: "John Doe", email: "john@example.com", action: "marked Student 3 (ece2024023) food collected", type: "food collected", timestamp: "2023-04-16 2:45 PM" },
-        { name: "Jane Smith", email: "jane@example.com", action: "marked Student 2 (ee2024029) merchandise not collected", type: "merchandise not collected", timestamp: "2023-04-17 9:20 AM" },
-        { name: "Michael Brown", email: "michael@example.com", action: "marked Student 2 (it2024023) merchandise collected", type: "merchandise collected", timestamp: "2023-04-18 4:10 PM" },
-    ];
-
-    const [filteredLogs, setFilteredLogs] = useState(logs);
-    type ActionFilter = "all" | "food collected" | "food not collected" | "merchandise collected" | "merchandise not collected";
+    const [logs, setLogs] = useState<Log[]>([]);
+    const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
+    type ActionFilter = "all" | "food collected" | "merchandise collected" ;
     type TimeFilter = "all" | "last 1 hour" | "last 2 hours" | "last 3 hours" | "last 6 hours";
 
     const [selectedFilter, setSelectedFilter] = useState<ActionFilter>("all");
     const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
 
+    useEffect(() => {
+        // Fetch initial logs
+        fetchLogs();
+
+        // Set up real-time subscription
+        const subscription = supabase
+            .channel('logs_changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'logs' }, payload => {
+                if (payload.eventType === 'INSERT') {
+                    setLogs(prevLogs => [...prevLogs, payload.new as Log]);
+                }
+            })
+            .subscribe();
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
+
+    
+    const fetchLogs = async () => {
+        const { data, error } = await supabase
+        .from('logs')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+            if (error) {
+            console.error('Error fetching logs:', error);
+        } else {
+            setLogs(data || []);
+        }
+    };
+
     const handleFilterChange = (filter: ActionFilter) => {
         setSelectedFilter(filter);
-        applyFilters(filter, timeFilter);
     };
-
+    
     const handleTimeFilterChange = (timeFilter: TimeFilter) => {
         setTimeFilter(timeFilter);
-        applyFilters(selectedFilter, timeFilter);
     };
-
-    const applyFilters = (actionFilter: ActionFilter, timeFilter: TimeFilter) => {
+    
+    const applyFilters = useCallback((actionFilter: ActionFilter, timeFilter: TimeFilter) => {
         const now = new Date();
-
+    
         const filtered = logs.filter((log) => {
-            const logDate = new Date(log.timestamp);
+            const logDate = new Date(log.created_at);
             const timeDiffInHours = (now.getTime() - logDate.getTime()) / (1000 * 60 * 60);
-
-            const matchesAction = actionFilter === "all" || log.type === actionFilter;
+            
+            const matchesAction = actionFilter === "all" || log.actionType === actionFilter;
             const matchesTime =
                 timeFilter === "all" ||
                 (timeFilter === "last 1 hour" && timeDiffInHours <= 1) ||
                 (timeFilter === "last 2 hours" && timeDiffInHours <= 2) ||
                 (timeFilter === "last 3 hours" && timeDiffInHours <= 3) ||
                 (timeFilter === "last 6 hours" && timeDiffInHours <= 6);
-
-            return matchesAction && matchesTime;
-        });
-
-        setFilteredLogs(filtered);
-    };
-
+                
+                return matchesAction && matchesTime;
+            });
+            
+            setFilteredLogs(filtered);
+        }, [logs]);
+    
+        useEffect(() => {
+            applyFilters(selectedFilter, timeFilter);
+        }, [applyFilters, logs, selectedFilter, timeFilter]);
+        
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -160,25 +199,34 @@ export default function EventLogs() {
                 </div>
 
                 <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                    <div className="grid grid-cols-4 gap-4 px-6 py-4 font-semibold text-gray-700 border-b border-gray-200">
+                    <div className="grid grid-cols-5 gap-4 px-6 py-4 font-semibold text-gray-700 border-b border-gray-200">
                         <div className="flex items-center"><User className="mr-2 h-4 w-4" /> Organizer Name</div>
                         <div className="flex items-center"><Mail className="mr-2 h-4 w-4" /> Email</div>
-                        <div className="flex items-center"><Activity className="mr-2 h-4 w-4" /> Action</div>
+                        <div className="flex items-center"><Activity className="mr-2 h-4 w-4" /> Action Type</div>
+                        <div className="flex items-center">Fresher Roll</div>
                         <div className="flex items-center"><Clock className="mr-2 h-4 w-4" /> Timestamp</div>
                     </div>
                     {filteredLogs.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">No logs available.</div>
                     ) : (
-                        <div>
-                            {filteredLogs.map((log, index) => (
-                                <div key={index} className="grid grid-cols-4 gap-4 px-6 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150">
-                                    <div className="text-sm font-medium text-gray-900">{log.name}</div>
-                                    <div className="text-sm text-gray-600">{log.email}</div>
-                                    <div className="text-sm text-gray-600">{log.action}</div>
-                                    <div className="text-sm text-gray-600">{log.timestamp}</div>
-                                </div>
-                            ))}
-                        </div>
+                            <AnimatePresence initial={false}>
+                                {filteredLogs.map((log) => (
+                                    <motion.div
+                                        key={log.id}
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="grid grid-cols-5 gap-4 px-6 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"
+                                    >
+                                        <div className="text-sm font-medium text-gray-900">{log.organizer_name}</div>
+                                        <div className="text-sm text-gray-600">{log.email}</div>
+                                        <div className="text-sm text-gray-600">{log.actionType}</div>
+                                        <div className="text-sm text-gray-600">{log.fresher_roll}</div>
+                                        <div className="text-sm text-gray-600">{new Date(log.created_at).toLocaleString()}</div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>  
                     )}
                 </div>
             </div>

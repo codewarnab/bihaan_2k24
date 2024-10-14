@@ -23,6 +23,8 @@ export default function UserMenu({
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false); // Flag for client-side rendering
     const setUser = useUser((state) => state.setUser);
+    const { user } = useUser();
+    console.log(user);
 
     useEffect(() => {
         setIsMounted(true); // Update mounted state
