@@ -1,14 +1,17 @@
-import React from 'react';
+'use client'
 
-// Define types for the QR code scan result.
-type Result = {
-    decodedText: string;
-    result: {
-        format: {
-            formatName: string;
-        };
-    };
-};
+import React, { useState, useEffect } from 'react'
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+} from "@/components/ui/drawer"
+import { Button } from "@/components/ui/button"
+import { Mail, Phone, Utensils, Shirt, Building2, QrCode, RotateCcw, AlertCircle } from "lucide-react"
 
 type ScanResult = {
     name: string
@@ -19,71 +22,88 @@ type ScanResult = {
     tshirt_size: string
     dept: string
     jwtToken: string
-} | null
+}
 
-// Filter results to remove duplicate decoded texts.
-function filterResults(results: Result[]): Result[] {
-    let filteredResults: Result[] = [];
-    for (let i = 0; i < results.length; ++i) {
-        if (i === 0) {
-            filteredResults.push(results[i]);
-            continue;
-        }
-
-        if (results[i].decodedText !== results[i - 1].decodedText) {
-            filteredResults.push(results[i]);
+type Result = {
+    decodedText: string
+    result: {
+        format: {
+            formatName: string
         }
     }
-    return filteredResults;
 }
 
-// Define props for the table component.
-interface ResultContainerTableProps {
-    data: Result[];
-}
+export default function Component({ results }: { results: Result[] }) {
+    const [scanResult, setScanResult] = useState<ScanResult | null>(null)
+    const [isOpen, setIsOpen] = useState(false)
 
-// Define the ResultContainerTable component to display results in a table.
-const ResultContainerTable: React.FC<ResultContainerTableProps> = ({ data }) => {
-    const results = filterResults(data);
-    console.log("Results", results);
+    useEffect(() => {
+        if (results.length > 0) {
+            try {
+                const parsedResult = JSON.parse(results[0].decodedText) as ScanResult
+                setScanResult(parsedResult)
+                setIsOpen(true)
+            } catch (error) {
+                console.error("Failed to parse QR code data:", error)
+            }
+        }
+    }, [results])
+
+    const handleClose = () => {
+        setIsOpen(false)
+        setScanResult(null)
+    }
+
     return (
-        <table className="Qrcode-result-table bg-black">
-            <thead>
-                <tr>
-                    <td>#</td>
-                    <td>Decoded Text</td>
-                    <td>Format</td>
-                </tr>
-            </thead>
-            <tbody>
-                {results.map((result, i) => (
-                    <tr key={i}>
-                        <td>{i}</td>
-                        <td>{result.decodedText}</td>
-                        <td>{result.result.format.formatName}</td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    );
-};
-
-// Define props for the plugin component.
-interface ResultContainerPluginProps {
-    results: Result[];
+        <Drawer open={isOpen} onOpenChange={setIsOpen}>
+            <DrawerContent>
+                <DrawerHeader>
+                    <DrawerTitle>Scanned QR Code Result</DrawerTitle>
+                    <DrawerDescription>Details from the scanned QR code</DrawerDescription>
+                </DrawerHeader>
+                {scanResult ? (
+                    <div className="p-4 space-y-4">
+                        <div className="flex items-center space-x-2">
+                            <QrCode className="w-5 h-5 text-primary" />
+                            <span className="font-semibold">{scanResult.name}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Building2 className="w-5 h-5 text-primary" />
+                            <span>{scanResult.roll} - {scanResult.dept.toUpperCase()}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Mail className="w-5 h-5 text-primary" />
+                            <span>{scanResult.email}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Phone className="w-5 h-5 text-primary" />
+                            <span>{scanResult.phone}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Utensils className="w-5 h-5 text-primary" />
+                            <span>{scanResult.veg_nonveg === 'veg' ? 'Vegetarian' : 'Non-Vegetarian'}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Shirt className="w-5 h-5 text-primary" />
+                            <span>T-Shirt Size: {scanResult.tshirt_size}</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-4 flex flex-col items-center justify-center space-y-2">
+                        <AlertCircle className="w-10 h-10 text-yellow-500" />
+                        <p className="text-center">No valid QR code data found. Please try scanning again.</p>
+                    </div>
+                )}
+                <DrawerFooter>
+                    <Button onClick={handleClose} className="w-full">
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        Scan Again
+                    </Button>
+                    <DrawerClose asChild>
+                        <Button variant="outline">Close</Button>
+                    </DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
+    )
 }
-
-// Define the ResultContainerPlugin component that uses ResultContainerTable.
-const ResultContainerPlugin: React.FC<ResultContainerPluginProps> = ({ results }) => {
-    const filteredResults = filterResults(results);
-    return (
-        <div className="Result-container">
-            <div className="Result-header">Scanned results ({filteredResults.length})</div>
-            <div className="Result-section">
-                <ResultContainerTable data={filteredResults} />
-            </div>
-        </div>
-    );
-};
-
-export default ResultContainerPlugin;
