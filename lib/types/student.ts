@@ -12,4 +12,5 @@ export type StudentData = {
     status: "pending" | "sending" | "sent" | "failed";
     reason: string;
     token: string;
+    qrcode: string;
 };

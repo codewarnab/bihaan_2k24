@@ -60,6 +60,12 @@ export default function Component({ results, handleScanAgain }: { results: Resul
 
 
     const fetchStudentStatus = useCallback(async (id: number) => {
+        if (!id) {
+            console.log("id",id)
+            toast.error("Invalid student ID. Please try again.");
+            return;
+        }
+        
         const { data: student, error: fetchError } = await supabase
             .from("people")
             .select(`food, merch ,college_roll`)
@@ -68,6 +74,7 @@ export default function Component({ results, handleScanAgain }: { results: Resul
 
         if (fetchError) {
             toast.error("Failed to fetch student status. Please try again.");
+            console.error("Failed to fetch student status:", fetchError);
             return;
         }
 
@@ -83,9 +90,14 @@ export default function Component({ results, handleScanAgain }: { results: Resul
         if (results.length > 0) {
             try {
                 const parsedResult = JSON.parse(results[0])
-                setScanResult(parsedResult)
-                setIsOpen(true)
-                fetchStudentStatus(parsedResult.id)  // Fetch food and merch status
+                console.log("parsedResult",parsedResult)
+                if (parsedResult.id) {
+                    setScanResult(parsedResult);
+                    setIsOpen(true);
+                    fetchStudentStatus(parsedResult.id);  // Fetch food and merch status
+                } else {
+                    toast.error("No valid ID found in QR code data.");
+                }
             } catch (error) {
                 console.error("Failed to parse QR code data:", error)
                 toast.error("Failed to parse QR code data. Please try scanning again.")
@@ -100,6 +112,7 @@ export default function Component({ results, handleScanAgain }: { results: Resul
 
         if (logError) {
             toast.error("Failed to fetch logs. Please try again.");
+            console.error("Failed to fetch logs:", logError);
         } else {
             setLogs(logData || []);
         }

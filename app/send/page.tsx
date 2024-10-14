@@ -5,14 +5,22 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Mail, Send, Loader2, Search } from "lucide-react"
+import { Mail, Send, Loader2, Search, QrCode } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import UserMenu from '@/components/nav'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { getAllPeople } from "@/utils/functions/getStudentsInfo"
 import { StudentData } from "@/lib/types/student"
-import axios from "axios";
+import axios from "axios"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import Image from "next/image"
 
 const sendEmail = async (id: number) => {
     const response = await axios.post("/api/sendEmails", {
@@ -42,6 +50,7 @@ export default function QRCodeEmailSender() {
             const peopleData = await getAllPeople();
             if (peopleData) {
                 setData(peopleData);
+                console.log(peopleData)
             }
         };
         fetchData();
@@ -80,8 +89,10 @@ export default function QRCodeEmailSender() {
 
     const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
         const student = filteredStudents[index]
+        
+
         return (
-            <div style={{ ...style, width: '100%' }} className={`flex items-center border-b gap-20 hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+            <div style={{ ...style, width: '100%' }} className={`flex items-center border-b gap-16 hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                 <div className="w-[130px] p-4 truncate">{student.college_roll}</div>
                 <div className="w-[250px] p-4 truncate">{student.email}</div>
                 <div className="w-[180px] p-4 truncate">{student.phone}</div>
@@ -108,6 +119,37 @@ export default function QRCodeEmailSender() {
                             {student.status === "sent" ? "Resend" :
                                 student.status === "failed" ? "Retry" : "Send"}
                         </Button>
+                    )}
+                </div>
+                <div className="flex-shrink-0 w-[80px] px-2 py-3">
+                    {student.qrcode && (
+                        <Dialog >
+                            <DialogTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    
+                                >
+                                    <QrCode className="h-4 w-4" />
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>QR Code for {student.college_roll}</DialogTitle>
+                                </DialogHeader>
+                                <div className="flex items-center justify-center p-6">
+                                    {student.qrcode && student.status === "sent" && (
+                                        <Image
+                                            src={student.qrcode}
+                                            alt="QR Code" width={200}
+                                            height={200}
+                                            className="w-auto h-auto"
+                                            loading="lazy"
+                                        />
+                                    )}
+                                </div>
+                            </DialogContent>
+                        </Dialog>
                     )}
                 </div>
             </div>
@@ -153,12 +195,13 @@ export default function QRCodeEmailSender() {
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                         </div>
                         <div className="rounded-md border">
-                            <div className="flex items-center font-semibold border-b bg-gray-100 text-sm gap-20">
+                            <div className="flex items-center font-semibold border-b bg-gray-100 text-sm gap-16">
                                 <div className="w-[150px] p-4">College Roll</div>
                                 <div className="w-[250px] p-4">Email</div>
                                 <div className="w-[180px] p-4">Phone</div>
                                 <div className="flex-shrink-0 w-[80px] px-2 py-3">Status</div>
                                 <div className="flex-shrink-0 w-[100px] px-2 py-3">Action</div>
+                                <div className="flex-shrink-0 w-[80px] px-2 py-3">QR Code</div>
                             </div>
                             <div style={{ height: '400px', width: '100%' }}>
                                 <AutoSizer>

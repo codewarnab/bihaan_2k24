@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'ylhfltcmljebclbhdyuy.supabase.co',
+            }
+        ]
+    },
     typescript: {
         ignoreBuildErrors: true, // Ignore TypeScript errors during build
     },
