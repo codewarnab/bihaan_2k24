@@ -20,10 +20,10 @@ type ScanResult = {
 } | null;
 
 export default function QRCodeScanner() {
-    const [decodedResults, setDecodedResults] = useState([]);
+    const [decodedResults, setDecodedResults] = useState();
     const onNewScanResult = (decodedText, decodedResult) => {
         console.log("App [result]", decodedResult);
-        setDecodedResults(prev => [...prev, decodedResult]);
+        setDecodedResults(decodedResult);
     };
 
     return (

@@ -1,5 +1,5 @@
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 // Define the props interface
 interface Html5QrcodePluginProps {
@@ -8,15 +8,16 @@ interface Html5QrcodePluginProps {
     aspectRatio?: number;
     disableFlip?: boolean;
     verbose?: boolean;
-    qrCodeSuccessCallback: (decodedText: string, result: any) => void; // Define the type as per your requirements
-    qrCodeErrorCallback?: (error: string) => void; // Optional error callback
+    qrCodeSuccessCallback: (decodedText: string, result: any) => void;
+    qrCodeErrorCallback?: (error: string) => void;
+    setHtml5QrcodeScannerState?: (state: any) => void;
 }
 
 const qrcodeRegionId = "html5qr-code-full-region";
 
 // Creates the configuration object for Html5QrcodeScanner.
 const createConfig = (props: Html5QrcodePluginProps) => {
-    const config: any = {}; // You can further refine this type
+    const config: any = {};
     if (props.fps) {
         config.fps = props.fps;
     }
@@ -32,29 +33,42 @@ const createConfig = (props: Html5QrcodePluginProps) => {
     config.videoConstraints = {
         facingMode: { exact: "environment" }
     };
+
     return config;
 };
 
 const Html5QrcodePlugin: React.FC<Html5QrcodePluginProps> = (props) => {
+    const scannerRef = useRef<Html5QrcodeScanner | null>(null); 
 
     useEffect(() => {
-        // when component mounts
-        const config = createConfig(props);
-        const verbose = props.verbose === true;
+        
+        if (!scannerRef.current) {
+            const config = createConfig(props);
+            const verbose = props.verbose === true;
 
-        // Success callback is required.
-        if (!props.qrCodeSuccessCallback) {
-            throw new Error("qrCodeSuccessCallback is required callback.");
+            // Success callback is required.
+            if (!props.qrCodeSuccessCallback) {
+                throw new Error("qrCodeSuccessCallback is required callback.");
+            }
+
+            // Create the scanner instance
+            scannerRef.current = new Html5QrcodeScanner(qrcodeRegionId, config, verbose);
+            scannerRef.current.render(props.qrCodeSuccessCallback, props.qrCodeErrorCallback);
+
+            // Pass scanner state to parent component
+            if (props.setHtml5QrcodeScannerState) {
+                props.setHtml5QrcodeScannerState(scannerRef.current.getState());
+            }
         }
 
-        const html5QrcodeScanner = new Html5QrcodeScanner(qrcodeRegionId, config, verbose);
-        html5QrcodeScanner.render(props.qrCodeSuccessCallback, props.qrCodeErrorCallback);
-
-        // cleanup function when component will unmount
+        // Cleanup function when component unmounts
         return () => {
-            html5QrcodeScanner.clear().catch(error => {
-                console.error("Failed to clear html5QrcodeScanner. ", error);
-            });
+            if (scannerRef.current) {
+                scannerRef.current.clear().catch(error => {
+                    console.error("Failed to clear html5QrcodeScanner. ", error);
+                });
+                scannerRef.current = null; // Reset the scanner instance reference
+            }
         };
     }, [props]);
 

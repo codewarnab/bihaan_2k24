@@ -6,8 +6,8 @@ import ResultContainerPlugin from "@/components/ResultContainerPlugin";
 
 export default function QRCodeScanner() {
     const [decodedResults, setDecodedResults] = useState([]);
+    
     const onNewScanResult = (decodedResult: any) => {
-
         console.log("App [result]", decodedResult);
         setDecodedResults(prev => [...prev, decodedResult]);
     };

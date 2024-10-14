@@ -41,12 +41,13 @@ export default function Component({ results }: { results: Result[] }) {
     useEffect(() => {
         if (results.length > 0) {
             try {
-                const parsedResult = JSON.parse(results[0].decodedText) as ScanResult
+                const parsedResult = JSON.parse(results[0])  
                 setScanResult(parsedResult)
                 setIsOpen(true)
             } catch (error) {
                 console.error("Failed to parse QR code data:", error)
-                toast.error("Failed to parse QR code data",error.message)
+                toast.error("Failed to parse QR code data. Please try scanning again.")
+                
             }
         }
     }, [results])
