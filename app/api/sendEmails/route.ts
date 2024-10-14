@@ -9,7 +9,7 @@ const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
     const { id } = await req.json();
 
     console.log("Received request to send email for student ID:", id);
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
                 dept
             `)
             .eq("id", id)
-            .single() as { data: StudentData, error: unknown };
+            .single() as { data: StudentData, error: any };
 
         if (error || !student) {
             console.error("Student not found or error fetching data:", error);
@@ -56,12 +56,25 @@ export async function POST(req: NextRequest, res: NextResponse) {
         const token = jwt.sign(student, process.env.JWT_SECRET, { expiresIn: '3d' });
         console.log("Generated JWT token for student:", student.college_roll);
 
+        await supabase.from("people").update({ token: token }).eq("id", id);
         // Generate a QR code
-        const qrCodeData = await QRCode.toDataURL(token);
+        const qrData = {
+            name: student.name,
+            roll: student.college_roll,
+            email: student.email,
+            phone: student.phone,
+            veg_nonveg: student.veg_nonveg,
+            tshirt_size: student.tshirt_size,
+            dept: student.dept,
+            jwtToken: token,
+        };
+
+        // Generate a QR code with the prepared data
+        const qrCodeData = await QRCode.toDataURL(JSON.stringify(qrData));
         console.log("Generated QR code data for student:", student.college_roll);
 
         // Upload the QR code to Supabase storage
-        const { data: uploadData, error: fileUploadError } = await supabase.storage
+        const {  error: fileUploadError } = await supabase.storage
             .from('qr_codes') // Assuming 'qr_codes' is the Supabase bucket
             .upload(`qr_${student.id}.png`, Buffer.from(qrCodeData.split(',')[1], 'base64'), {
                 contentType: 'image/png',
@@ -72,7 +85,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
             console.error("Error uploading QR code:", fileUploadError);
             await supabase
                 .from("people")
-                .update({ status: "failed" })
+                .update({ status: "failed" , reasons: fileUploadError.message})
                 .eq("id", id);
             console.log("Updated student status to 'failed' for ID:", id);
             return NextResponse.json({ error: "Failed to upload QR code." }, { status: 500 });
@@ -82,7 +95,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         // Get the public URL for the uploaded QR code
         const { data: publicUrlData } = supabase.storage
             .from('qr_codes')
-            .getPublicUrl(`qr_${student.id}.png`); // Ensure you're using the correct method
+            .getPublicUrl(`qr_${student.id}.png`)
 
         if (!publicUrlData) {
             console.error("Failed to retrieve public URL for QR code.");
@@ -116,9 +129,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
             
         } catch (error) {
             console.error("Error sending email:", error);
+            const errorMessage = error instanceof Error ? error.message : "Unknown error";
             await supabase
                 .from("people")
-                .update({ status: "failed" })
+                .update({ status: "failed", reasons: errorMessage })
                 .eq("id", id);
             console.log("Updated student status to 'failed' for ID:", id);
             return NextResponse.json({ error: "Failed to send email." }, { status: 500 });

@@ -11,4 +11,5 @@ export type StudentData = {
     veg_nonveg: string | null;
     status: "pending" | "sending" | "sent" | "failed";
     reason: string;
+    token: string;
 };
