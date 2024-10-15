@@ -28,9 +28,10 @@ type ScanResult = {
     email: string
     phone: string
     veg_nonveg: string
-    tshirt_size: string
+    tshirt_size?: string // optional, since volunteers might not have it
     dept: string
     id: number
+    isVolunteer: boolean // New field to distinguish between student and volunteer
 }
 
 type Result = {
@@ -44,58 +45,43 @@ type Result = {
 
 export default function Component({ results, handleScanAgain }: { results: Result[], handleScanAgain: () => void }) {
     const [scanResult, setScanResult] = useState<ScanResult | null>(null)
-    const [studentStatus, setStudentStatus] = useState<{ food: boolean, merch: boolean, college_roll: string } | null>(null)
-    const [volunteerStatus, setVolunteerStatus] = useState<{ food: boolean, college_roll: string } | null>(null)
+    const [status, setStatus] = useState<{ food: boolean, merch?: boolean , college_roll: string } | null>(null)
     const [isOpen, setIsOpen] = useState(false)
     const [logs, setLogs] = useState<Log[]>([]);
-    const [isVolunteer, setIsVolunteer] = useState(false)
     const { user } = useUser();
+
     console.log("logs", logs)
+    console.log("status", status)
+    console.log("scanResult", scanResult)
 
-
-    const fetchStudentStatus = useCallback(async (id: number) => {
+    const fetchStatus = useCallback(async (id: number, isVolunteer: boolean) => {
         if (!id) {
-            console.log("id", id)
-            toast.error("Invalid student ID. Please try again.");
+            toast.error("Invalid ID. Please try again.");
             return;
         }
-        if (!scanResult?.tshirt_size) {
-            setIsVolunteer(true)
-            const { data: volunteer, error: fetchError } = await supabase
-                .from("volunteers").
-                select(`food, college_roll`).
-                eq("id", id)
-                .single();
-            if (fetchError) {
-                toast.error("Failed to fetch student status. Please try again.");
-                console.error("Failed to fetch student status:", fetchError);
-                return;
-            }
 
-            setVolunteerStatus(volunteer);
+        const table = isVolunteer ? "volunteers" : "people";
+        const fields = isVolunteer ? `food, college_roll` : `food, merch, college_roll`;
 
-        } else {
+        const { data, error: fetchError } = await supabase
+            .from(table)
+            .select(fields)
+            .eq("id", id)
+            .single();
 
-            const { data: student, error: fetchError } = await supabase
-                .from("people")
-                .select(`food, merch ,college_roll`)
-                .eq("id", id)
-                .single();
-
-            if (fetchError) {
-                toast.error("Failed to fetch student status. Please try again.");
-                console.error("Failed to fetch student status:", fetchError);
-                return;
-            }
-            setStudentStatus(student);
-
-            // Fetch logs if food or merch is collected
-            if (student.food || student.merch) {
-                fetchLogs(student.college_roll);
-            }
+        if (fetchError) {
+            toast.error("Failed to fetch status. Please try again.");
+            console.error("Failed to fetch status:", fetchError);
+            return;
         }
 
-    }, [scanResult?.tshirt_size]);
+        setStatus(data as unknown as { food: boolean, merch?: boolean, college_roll: string });
+
+        // Fetch logs if food or merch is collected
+        if (data?.food || (!isVolunteer && data?.merch)) {
+            fetchLogs(data.college_roll);
+        }
+    }, []);
 
     useEffect(() => {
         if (results.length > 0) {
@@ -105,7 +91,7 @@ export default function Component({ results, handleScanAgain }: { results: Resul
                 if (parsedResult.id) {
                     setScanResult(parsedResult);
                     setIsOpen(true);
-                    fetchStudentStatus(parsedResult.id);  // Fetch food and merch status
+                    fetchStatus(parsedResult.id, parsedResult.isVolunteer);  // Fetch food/merch status
                 } else {
                     toast.error("No valid ID found in QR code data.");
                 }
@@ -114,7 +100,8 @@ export default function Component({ results, handleScanAgain }: { results: Resul
                 toast.error("Failed to parse QR code data. Please try scanning again.")
             }
         }
-    }, [fetchStudentStatus, results])
+    }, [fetchStatus, results]);
+
     const fetchLogs = async (collegeRoll: string) => {
         const { data: logData, error: logError } = await supabase
             .from("logs")
@@ -132,12 +119,12 @@ export default function Component({ results, handleScanAgain }: { results: Resul
     const handleClose = () => {
         setIsOpen(false)
         setScanResult(null)
-        setStudentStatus(null)
+        setStatus(null)
         setLogs([])
     }
 
     return (
-        <Drawer open={isOpen} onOpenChange={setIsOpen}>
+        <Drawer open={isOpen} onOpenChange={setIsOpen} onClose={handleScanAgain} >
             <DrawerContent>
                 <DrawerHeader>
                     <DrawerTitle>Scanned QR Code Result</DrawerTitle>
@@ -145,7 +132,7 @@ export default function Component({ results, handleScanAgain }: { results: Resul
                 </DrawerHeader>
                 {scanResult ? (
                     <div className="p-4 space-y-4">
-                        <h1 className="text-xl font-semibold">{isVolunteer ? "Student Details" : "Volunteer Details"} </h1>
+                        <h1 className="text-xl font-semibold">{scanResult.isVolunteer ? "Volunteer Details" : "Student Details"}</h1>
                         <div className="flex items-center space-x-2">
                             <QrCode className="w-5 h-5 text-primary" />
                             <span className="font-semibold">{scanResult.name}</span>
@@ -166,10 +153,12 @@ export default function Component({ results, handleScanAgain }: { results: Resul
                             <Utensils className="w-5 h-5 text-primary" />
                             <span>{scanResult.veg_nonveg === 'veg' ? 'Vegetarian' : 'Non-Vegetarian'}</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <Shirt className="w-5 h-5 text-primary" />
-                            <span>T-Shirt Size: {scanResult.tshirt_size}</span>
-                        </div>
+                        {scanResult && !scanResult.isVolunteer && (
+                            <div className="flex items-center space-x-2">
+                                <Shirt className="w-5 h-5 text-primary" />
+                                <span>T-Shirt Size: {scanResult.tshirt_size}</span>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="p-4 flex flex-col items-center justify-center space-y-2">
@@ -197,45 +186,41 @@ export default function Component({ results, handleScanAgain }: { results: Resul
                         Scan Again
                     </Button>
 
-                    {studentStatus && (
+                    {status && (
                         <>
-                            
                             <Button onClick={() => {
                                 if (scanResult) {
-                                    if (!isVolunteer) {
-                                        markFoodCollected(scanResult.id, studentStatus, setStudentStatus, user?.name || 'Unknown', user?.email || 'Unknown', studentStatus.college_roll);
-                                    }
-                                    else {
-                                        markFoodCollectedVolunteer(scanResult.id, volunteerStatus, setVolunteerStatus, user?.name || 'Unknown', user?.email || 'Unknown', volunteerStatus?.college_roll || '');
+                                    if (scanResult.isVolunteer) {
+                                        markFoodCollectedVolunteer(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
+                                    } else {
+                                        markFoodCollected(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
                                     }
                                 }
-                            }} className="w-full" 
-                                disabled={studentStatus.food}
+                            }} className="w-full"
+                                disabled={status.food}
                             >
                                 <Utensils className="w-4 h-4 mr-2" />
-                                {studentStatus.food ? 'Food Collected' : 'Mark Food as Collected'}
+                                {status.food ? 'Food Collected' : 'Mark Food as Collected'}
                             </Button>
 
-                            {!isVolunteer && 
-
+                            {!scanResult.isVolunteer && (
                                 <Button
                                     onClick={() => {
                                         if (scanResult) {
-                                            markMerchandiseCollected(scanResult.id, studentStatus, setStudentStatus, user?.name || 'Unknown', user?.email || 'Unknown', studentStatus.college_roll);
+                                            markMerchandiseCollected(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
                                         }
                                     }}
                                     className="w-full"
-                                    disabled={studentStatus.merch}
+                                    disabled={status.merch}
                                 >
                                     <Shirt className="w-4 h-4 mr-2" />
-                                    {studentStatus.merch ? 'Merch Collected' : 'Mark Merch as Collected'}
+                                    {status.merch ? 'Merch Collected' : 'Mark Merch as Collected'}
                                 </Button>
-                            }
-
+                            )}
                         </>
                     )}
 
-                    <DrawerClose asChild>
+                    <DrawerClose asChild >
                         <Button variant="outline">Close</Button>
                     </DrawerClose>
                 </DrawerFooter>

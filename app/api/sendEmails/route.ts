@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     }
 
     const table = type === 'student' ? 'people' : 'volunteers';
-
+    const isVolunteer = type === 'volunteer';
     try {
         console.log(`Updating ${type} status to 'sending' for ID:`, id);
         await supabase
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
             `) 
             .eq("id", id)
             .single() as { data: StudentData | VolunteerData, error: any };
-
+        console.log(`Fetched ${type} data:`, person);
         if (error || !person) {
             console.error(`${type} not found or error fetching data:`, error);
             return NextResponse.json({ error: `${type} not found.` }, { status: 404 });
@@ -57,9 +57,10 @@ export async function POST(req: NextRequest) {
             email: person.email,
             phone: person.phone,
             veg_nonveg: person.veg_nonveg,
-            ...(type === 'student' && { tshirt_size: (person as StudentData).tshirt_size }),
             dept: person.dept,
             id: person.id,
+            isVolunteer,  
+            ...(type === 'student' && { tshirt_size: (person as StudentData).tshirt_size }),
         };
 
         // Generate a QR code with the prepared data
