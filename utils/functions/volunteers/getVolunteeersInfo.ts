@@ -1,14 +1,13 @@
 import { supabase } from "@/lib/supabase-client";
 
-export async function getAllPeople() {
+export async function getVolunteersInfo() {
     const { data, error } = await supabase
-        .from('people')
+        .from('volunteers')
         .select("*");
-    console.log(data);
     if (error) {
-        console.error("Error fetching data from people table:", error);
+        console.error("Error fetching data from volunteers table:", error);
         return null;
     }
-
     return data;
+
 }

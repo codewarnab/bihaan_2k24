@@ -26,7 +26,7 @@ interface Log {
 export default function EventLogs() {
     const [logs, setLogs] = useState<Log[]>([]);
     const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
-    type ActionFilter = "all" | "food collected" | "merchandise collected" ;
+    type ActionFilter = "all" | "food collected" | "merchandise collected" | "Food  collected for Volunteer" | "Food  collected for faculty" ;
     type TimeFilter = "all" | "last 1 hour" | "last 2 hours" | "last 3 hours" | "last 6 hours";
 
     const [selectedFilter, setSelectedFilter] = useState<ActionFilter>("all");
@@ -134,23 +134,25 @@ export default function EventLogs() {
                                 Food Collected
                             </DropdownMenuCheckboxItem>
                             <DropdownMenuCheckboxItem
-                                checked={selectedFilter === "food not collected"}
-                                onCheckedChange={() => handleFilterChange("food not collected")}
+                                checked={selectedFilter === "Food  collected for Volunteer"}
+                                onCheckedChange={() => handleFilterChange("Food  collected for Volunteer")}
                             >
-                                Food Not Collected
+                                Food Collected for Volunteer
                             </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                                checked={selectedFilter === "Food  collected for faculty"}
+                                onCheckedChange={() => handleFilterChange("Food  collected for faculty")}
+                            >
+                                Food Collected for faculty
+                            </DropdownMenuCheckboxItem>
+                            
                             <DropdownMenuCheckboxItem
                                 checked={selectedFilter === "merchandise collected"}
                                 onCheckedChange={() => handleFilterChange("merchandise collected")}
                             >
                                 Merchandise Collected
                             </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={selectedFilter === "merchandise not collected"}
-                                onCheckedChange={() => handleFilterChange("merchandise not collected")}
-                            >
-                                Merchandise Not Collected
-                            </DropdownMenuCheckboxItem>
+                            
                         </DropdownMenuContent>
                     </DropdownMenu>
 
@@ -203,7 +205,7 @@ export default function EventLogs() {
                         <div className="flex items-center"><User className="mr-2 h-4 w-4" /> Organizer Name</div>
                         <div className="flex items-center"><Mail className="mr-2 h-4 w-4" /> Email</div>
                         <div className="flex items-center"><Activity className="mr-2 h-4 w-4" /> Action Type</div>
-                        <div className="flex items-center">Fresher Roll</div>
+                        <div className="flex items-center">Fresher/volunteer Roll</div>
                         <div className="flex items-center"><Clock className="mr-2 h-4 w-4" /> Timestamp</div>
                     </div>
                     {filteredLogs.length === 0 ? (

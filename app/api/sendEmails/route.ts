@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import jwt from "jsonwebtoken";
 import { sendEmail } from "@/utils/functions/emailService";
 import { StudentData } from "@/lib/types/student";
 import QRCode from 'qrcode';
@@ -53,10 +52,7 @@ export async function POST(req: NextRequest) {
             console.error("JWT_SECRET is not defined in environment variables.");
             throw new Error("JWT_SECRET is not defined in environment variables.");
         }
-        const token = jwt.sign(student, process.env.JWT_SECRET, { expiresIn: '3d' });
-        console.log("Generated JWT token for student:", student.college_roll);
 
-        await supabase.from("people").update({ token: token }).eq("id", id);
         // Generate a QR code
         const qrData = {
             name: student.name,
@@ -67,7 +63,6 @@ export async function POST(req: NextRequest) {
             tshirt_size: student.tshirt_size,
             dept: student.dept,
             id: student.id,
-            jwtToken: token,
         };
 
         // Generate a QR code with the prepared data

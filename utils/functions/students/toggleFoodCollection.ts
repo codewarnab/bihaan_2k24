@@ -7,7 +7,9 @@ export const toggleFoodCollection = async (
     id: number,
     data: StudentData[],
     setData: React.Dispatch<React.SetStateAction<StudentData[]>>,
-    setLoadingIds: React.Dispatch<React.SetStateAction<Set<number>>>
+    setLoadingIds: React.Dispatch<React.SetStateAction<Set<number>>>,
+    organizer_name: string,
+    organizer_email: string
 ) => {
     console.log(`Toggling food collection for student ID: ${id}`);
     setLoadingIds((prev) => new Set(prev).add(id));
@@ -24,9 +26,8 @@ export const toggleFoodCollection = async (
         return;
     }
 
-    console.log(`Current food status for ${student.name}: ${student.food}`);
-    const newFoodStatus = !student.food;
-    console.log(`New food status for ${student.name}: ${newFoodStatus}`);
+
+    const newFoodStatus = true
 
     const { error } = await supabase
         .from('people')
@@ -45,6 +46,15 @@ export const toggleFoodCollection = async (
         );
         const foodStatus = newFoodStatus ? 'collected' : 'not collected';
         toast.success(`Food has been marked as ${foodStatus} for student: ${student.name}`);
+        const { error } = await supabase
+            .from('logs')
+            .insert({
+                organizer_name: organizer_name || 'Unknown',
+                email: organizer_email || 'Unknown',
+                actionType: 'food collected',
+                fresher_roll: student.college_roll || 'Unknown'
+            });
+        console.error("error while adding the logs ", error);
     }
 
     setLoadingIds((prev) => {

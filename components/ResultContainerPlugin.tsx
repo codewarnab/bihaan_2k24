@@ -14,9 +14,9 @@ import { Button } from "@/components/ui/button"
 import { Mail, Phone, Utensils, Shirt, Building2, QrCode, RotateCcw, AlertCircle } from "lucide-react"
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase-client";
-import { markFoodCollected } from '@/utils/functions/markAsFoodCollected'
+import { markFoodCollected } from '@/utils/functions/students/markAsFoodCollected'
 import { useUser } from '@/lib/store/user'
-import { markMerchandiseCollected } from '@/utils/functions/markAsMerchCollcted'
+import { markMerchandiseCollected } from '@/utils/functions/students/markAsMerchCollcted'
 import { formatDistanceToNow } from 'date-fns'; 
 
 
@@ -37,7 +37,6 @@ type ScanResult = {
     veg_nonveg: string
     tshirt_size: string
     dept: string
-    jwtToken: string
     id: number
 }
 

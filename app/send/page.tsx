@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import UserMenu from '@/components/nav'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { getAllPeople } from "@/utils/functions/getStudentsInfo"
+import { getAllPeople } from "@/utils/functions/students/getStudentsInfo"
 import { StudentData } from "@/lib/types/student"
 import axios from "axios"
 import {
@@ -89,7 +89,7 @@ export default function QRCodeEmailSender() {
 
     const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
         const student = filteredStudents[index]
-        
+
 
         return (
             <div style={{ ...style, width: '100%' }} className={`flex items-center border-b gap-16 hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
@@ -128,7 +128,7 @@ export default function QRCodeEmailSender() {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    
+
                                 >
                                     <QrCode className="h-4 w-4" />
                                 </Button>

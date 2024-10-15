@@ -1,6 +1,6 @@
 "use client";
 import { useUser } from '@/lib/store/user';
-import { getUserInfo } from '@/utils/functions/getUserInfo';
+import { getUserInfo } from '@/utils/functions/auth/getUserInfo';
 import { useEffect, useCallback } from 'react';
 
 const SessionProvider = () => {
