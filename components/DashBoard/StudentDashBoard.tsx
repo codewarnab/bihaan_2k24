@@ -82,27 +82,27 @@ export default function StudentsDashboard({ searchTerm }: StudentsDashboardProps
         if (isLoading || data.length === 0) {
             return (
                 <div style={{ ...style, width: '100%' }} className="flex items-center border-b hover:bg-gray-50 animate-pulse">
-                    <div className="w-[150px] p-4 bg-gray-200" />
-                    <div className="w-[130px] p-4 bg-gray-200" />
-                    <div className="w-[250px] p-4 bg-gray-200" />
-                    <div className="w-[180px] p-4 bg-gray-200" />
-                    <div className="w-[100px] p-4 bg-gray-200" />
-                    <div className="w-[50px] p-4 bg-gray-200" />
-                    <div className="w-[150px] p-4 bg-gray-200" />
-                    <div className="w-[150px] p-4 bg-gray-200" />
+                    <div className="flex-1 p-4 bg-gray-200" />
+                    <div className="flex-1 p-4 bg-gray-200" />
+                    <div className="flex-2 p-4 bg-gray-200" />
+                    <div className="flex-1 p-4 bg-gray-200" />
+                    <div className="flex-1 p-4 bg-gray-200" />
+                    <div className="flex-1 p-4 bg-gray-200" />
+                    <div className="flex-1 p-4 bg-gray-200" />
+                    <div className="flex-1 p-4 bg-gray-200" />
                 </div>
             )
         }
 
         return (
             <div style={{ ...style, width: '100%' }} className="flex items-center border-b hover:bg-gray-50">
-                <div className="w-[150px] p-4">{item.name}</div>
-                <div className="w-[130px] p-4 truncate">{item.college_roll}</div>
-                <div className="w-[250px] p-4 truncate">{item.email}</div>
-                <div className="w-[180px] p-4 truncate">{item.phone}</div>
-                <div className="w-[100px] p-4">{item.veg_nonveg}</div>
-                <div className="w-[50px] p-4">{item.tshirt_size}</div>
-                <div className="w-[150px] p-4">
+                <div className="flex-1 p-4">{item.name}</div>
+                <div className="flex-1 p-4 truncate">{item.college_roll}</div>
+                <div className="flex-2 p-4 truncate">{item.email}</div>
+                <div className="flex-1 p-4 truncate">{item.phone}</div>
+                <div className="flex-1 p-4">{item.veg_nonveg}</div>
+                <div className="flex-1 p-4">{item.tshirt_size}</div>
+                <div className="flex-1 p-4">
                     <Button
                         variant={item.food ? "outline" : "default"}
                         size="sm"
@@ -120,7 +120,7 @@ export default function StudentsDashboard({ searchTerm }: StudentsDashboardProps
                         ) : item.food ? 'Collected' : 'Not Collected'}
                     </Button>
                 </div>
-                <div className="w-[150px] p-4">
+                <div className="flex-1 p-4">
                     <Button
                         variant={item.merch ? "outline" : "default"}
                         size="sm"
@@ -149,14 +149,14 @@ export default function StudentsDashboard({ searchTerm }: StudentsDashboardProps
             </div>
             <div className="overflow-x-auto">
                 <div className="flex items-center font-bold border-b bg-gray-100 rounded-sm">
-                    <div className="w-[150px] p-4">Name</div>
-                    <div className="w-[150px] p-4">College Roll</div>
-                    <div className="w-[250px] p-4">Email</div>
-                    <div className="w-[180px] p-4">Phone</div>
-                    <div className="w-[100px] p-4">Veg/NonVeg</div>
-                    <div className="w-[50px] p-4">Size</div>
-                    <div className="w-[150px] p-4">Food</div>
-                    <div className="w-[150px] p-4">Merch</div>
+                    <div className="flex-1 p-4">Name</div>
+                    <div className="flex-1 p-4">College Roll</div>
+                    <div className="flex-2 p-4">Email</div>
+                    <div className="flex-1 p-4">Phone</div>
+                    <div className="flex-1 p-4">Veg/NonVeg</div>
+                    <div className="flex-1 p-4">Size</div>
+                    <div className="flex-1 p-4">Food</div>
+                    <div className="flex-1 p-4">Merch</div>
                 </div>
                 <div style={{ height: '500px', width: '100%' }}>
                     <AutoSizer>
