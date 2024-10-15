@@ -5,23 +5,23 @@ import { Button } from "@/components/ui/button"
 import { Loader } from 'lucide-react'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { useUser } from '@/lib/store/user'
 import { getAllPeople } from "@/utils/functions/students/getStudentsInfo"
 import { StudentData } from "@/lib/types/student"
 import { toggleMerchandiseCollection } from "@/utils/functions/students/toggleMerchCollection"
 import { supabase } from '@/lib/supabase-client'
 import { toggleFoodCollection } from '@/utils/functions/students/toggleFoodCollection'
+import { IUser } from '@/lib/types/user'
 
 interface StudentsDashboardProps {
     searchTerm: string
+    user : IUser | null
 }
 
-export default function StudentsDashboard({ searchTerm }: StudentsDashboardProps) {
+export default function StudentsDashboard({ searchTerm,user }: StudentsDashboardProps) {
     const [data, setData] = useState<StudentData[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [merchLoadingIds, setMerchLoadingIds] = useState<Set<number>>(new Set())
     const [foodLoadingIds, setFoodLoadingIds] = useState<Set<number>>(new Set())
-    const { user } = useUser()
 
     useEffect(() => {
         const fetchData = async () => {

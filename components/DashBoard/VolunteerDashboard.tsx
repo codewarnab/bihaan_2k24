@@ -5,21 +5,22 @@ import { Button } from "@/components/ui/button"
 import { Loader } from 'lucide-react'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { useUser } from '@/lib/store/user'
 import { getVolunteersInfo } from '@/utils/functions/volunteers/getVolunteeersInfo'
 import { VolunteerData } from '@/lib/types/volunteer'
 import { supabase } from '@/lib/supabase-client'
 import { markFoodCollectedVolunteer } from "@/utils/functions/volunteers/markAsFoodCollctedVolunteers"
+import { IUser } from '@/lib/types/user'
 
 interface VolunteersDashboardProps {
     searchTerm: string
+    user: IUser | null
 }
 
-export default function VolunteersDashboard({ searchTerm }: VolunteersDashboardProps) {
+export default function VolunteersDashboard({ searchTerm ,user}: VolunteersDashboardProps) {
     const [data, setData] = useState<VolunteerData[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [foodLoadingIds, setFoodLoadingIds] = useState<Set<number>>(new Set())
-    const { user } = useUser()
+    
 
     useEffect(() => {
         const fetchData = async () => {

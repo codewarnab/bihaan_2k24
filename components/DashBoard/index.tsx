@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Search } from 'lucide-react'
 import UserMenu from '@/components/nav'
 import { Skeleton } from "@/components/ui/skeleton"
-
+import { useUser } from '@/lib/store/user'
 const VolunteersDashboard = lazy(() => import('@/components/DashBoard/VolunteerDashboard'))
 const FacultyDashboard = lazy(() => import('@/components/DashBoard/FacultyDashboard'))
 const StudentsDashboard = lazy(() => import('@/components/DashBoard/StudentDashBoard'))
-
+import Link from 'next/link'
 function LoadingFallback() {
     return (
         <div className="space-y-4">
@@ -28,9 +28,25 @@ function LoadingFallback() {
 
 export default function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('')
+    const { user } = useUser()
+
+
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value)
+    }
+
+
+
+    if (!user || !(user.isGod || user.isAdmin)) {
+        return (
+            <div className="container mx-auto p-8 flex items-center justify-center min-h-screen">
+                <h1 className="text-4xl font-bold text-center text-red-600">
+                    You are not authorized. Please <Link href='/contact' className='underline'>contact
+                    </Link> the developer.
+                </h1>
+            </div>
+        )
     }
 
     return (
@@ -62,19 +78,25 @@ export default function Dashboard() {
                 </TabsList>
                 <TabsContent value="students">
                     <Suspense fallback={<LoadingFallback />}>
-                        <StudentsDashboard searchTerm={searchTerm} />
+                        <StudentsDashboard searchTerm={searchTerm}
+                            user={user}
+                        />
                     </Suspense>
                 </TabsContent>
                 <TabsContent value="volunteers">
                     <Suspense fallback={<LoadingFallback />}>
                         <VolunteersDashboard
-                            searchTerm={searchTerm} />
+                            searchTerm={searchTerm}
+                            user={user}
+                        />
                     </Suspense>
                 </TabsContent>
                 <TabsContent value="faculty">
                     <Suspense fallback={<LoadingFallback />}>
                         <FacultyDashboard
-                            searchTerm={searchTerm} />
+                            searchTerm={searchTerm}
+                            user={user}
+                        />
                     </Suspense>
                 </TabsContent>
             </Tabs>

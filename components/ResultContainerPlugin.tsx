@@ -15,11 +15,12 @@ import { Mail, Phone, Utensils, Shirt, Building2, QrCode, RotateCcw, AlertCircle
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase-client";
 import { markFoodCollected } from '@/utils/functions/students/markAsFoodCollected'
-import { useUser } from '@/lib/store/user'
+import { IUser } from '@/lib/types/user'
 import { markMerchandiseCollected } from '@/utils/functions/students/markAsMerchCollcted'
 import { formatDistanceToNow } from 'date-fns';
 import { Log } from '@/lib/types/log'
 import { markFoodCollectedVolunteer } from "@/utils/functions/volunteers/markFoodCollected"
+import Link from 'next/link'
 
 
 type ScanResult = {
@@ -28,10 +29,10 @@ type ScanResult = {
     email: string
     phone: string
     veg_nonveg: string
-    tshirt_size?: string // optional, since volunteers might not have it
+    tshirt_size?: string 
     dept: string
     id: number
-    isVolunteer: boolean // New field to distinguish between student and volunteer
+    isVolunteer: boolean 
 }
 
 type Result = {
@@ -43,12 +44,12 @@ type Result = {
     }
 }
 
-export default function Component({ results, handleScanAgain }: { results: Result[], handleScanAgain: () => void }) {
+export default function Component({ results, handleScanAgain ,user}: { results: Result[], handleScanAgain: () => void ,user:IUser | null }) {
     const [scanResult, setScanResult] = useState<ScanResult | null>(null)
     const [status, setStatus] = useState<{ food: boolean, merch?: boolean , college_roll: string } | null>(null)
     const [isOpen, setIsOpen] = useState(false)
     const [logs, setLogs] = useState<Log[]>([]);
-    const { user } = useUser();
+    
 
     console.log("logs", logs)
     console.log("status", status)
@@ -101,6 +102,17 @@ export default function Component({ results, handleScanAgain }: { results: Resul
             }
         }
     }, [fetchStatus, results]);
+
+    if (!user || !(user.isGod || user.isAdmin)) {
+        return (
+            <div className="container mx-auto p-8 flex items-center justify-center min-h-screen">
+                <h1 className="text-4xl font-bold text-center text-red-600">
+                    You are not authorized. Please <Link href='/contact' className='underline'>contact
+                    </Link> the developer.
+                </h1>
+            </div>
+        )
+    }
 
     const fetchLogs = async (collegeRoll: string) => {
         const { data: logData, error: logError } = await supabase

@@ -5,21 +5,21 @@ import { Button } from "@/components/ui/button"
 import { Loader } from "lucide-react"
 import { FixedSizeList as List } from "react-window"
 import AutoSizer from "react-virtualized-auto-sizer"
-import { useUser } from "@/lib/store/user"
 import { getFacultiesInfo } from "@/utils/functions/faculties/getFacultiesInfo"
 import { FacultyData } from "@/lib/types/faculty"
 import { supabase } from "@/lib/supabase-client"
 import { markFoodCollectedVolunteer } from "@/utils/functions/faculties/markAsFoodCollctedFaculy"
-
+import { IUser } from "@/lib/types/user"
 interface FacultyDashboardProps {
     searchTerm: string
+    user: IUser | null
 }
 
-export default function FacultyDashboard({ searchTerm }: FacultyDashboardProps) {
+export default function FacultyDashboard({ searchTerm ,user }: FacultyDashboardProps) {
     const [data, setData] = useState<FacultyData[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [foodLoadingIds, setFoodLoadingIds] = useState<Set<number>>(new Set())
-    const { user } = useUser()
+    
 
     useEffect(() => {
         const fetchData = async () => {

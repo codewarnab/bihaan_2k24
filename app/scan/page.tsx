@@ -4,11 +4,14 @@ import { useState } from "react";
 import Html5QrcodePlugin from "@/components/Html5qrcodeplugin";
 import ResultContainerPlugin from "@/components/ResultContainerPlugin";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
+import { useUser } from "@/lib/store/user";
+
 
 export default function QRCodeScanner() {
     const [decodedResults, setDecodedResults] = useState([]);
     const [scanningstate, setHtml5QrcodeScannerState] = useState(null);
     const isDesktop = useIsDesktop();
+    const { user } = useUser();
 
     const onNewScanResult = (decodedResult: any) => {
         console.log("App [result]", decodedResult);
@@ -40,6 +43,7 @@ export default function QRCodeScanner() {
                     <ResultContainerPlugin
                         results={decodedResults}
                         handleScanAgain={handleScanAgain}
+                        user={user}
                     />
                 </>
             ) :
