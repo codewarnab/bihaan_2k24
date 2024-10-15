@@ -14,14 +14,8 @@ import { Button } from "@/components/ui/button";
 import UserMenu from "@/components/nav";
 import { supabase } from "@/lib/supabase-client";
 import { motion, AnimatePresence } from "framer-motion";
-interface Log {
-    id: number;
-    created_at: string;
-    organizer_name: string;
-    email: string;
-    actionType: string;
-    fresher_roll: string;
-}
+import { Log } from "@/lib/types/log";
+
 
 export default function EventLogs() {
     const [logs, setLogs] = useState<Log[]>([]);

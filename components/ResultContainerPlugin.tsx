@@ -18,16 +18,8 @@ import { markFoodCollected } from '@/utils/functions/students/markAsFoodCollecte
 import { useUser } from '@/lib/store/user'
 import { markMerchandiseCollected } from '@/utils/functions/students/markAsMerchCollcted'
 import { formatDistanceToNow } from 'date-fns'; 
+import { Log } from '@/lib/types/log'
 
-
-interface Log {
-    id: number;
-    created_at: string;
-    organizer_name: string;
-    email: string;
-    actionType: string;
-    fresher_roll: string;
-}
 
 type ScanResult = {
     name: string

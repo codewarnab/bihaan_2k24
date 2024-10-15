@@ -12,6 +12,8 @@ import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { getAllPeople } from "@/utils/functions/students/getStudentsInfo"
 import { StudentData } from "@/lib/types/student"
+import { getVolunteersInfo } from "@/utils/functions/volunteers/getVolunteeersInfo"
+import { VolunteerData } from "@/lib/types/volunteer"
 import axios from "axios"
 import {
     Dialog,
@@ -21,10 +23,12 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import Image from "next/image"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const sendEmail = async (id: number) => {
+const sendEmail = async (id: number, type: 'student' | 'volunteer') => {
     const response = await axios.post("/api/sendEmails", {
         id,
+        type,
     });
 
     if (response.status !== 200) {
@@ -34,13 +38,16 @@ const sendEmail = async (id: number) => {
 };
 
 export default function QRCodeEmailSender() {
-    const [data, setData] = useState<StudentData[]>([])
+    const [activeTab, setActiveTab] = useState<'students' | 'volunteers'>('students')
+    const [studentData, setStudentData] = useState<StudentData[]>([])
+    const [volunteerData, setVolunteerData] = useState<VolunteerData[]>([])
     const [searchTerm, setSearchTerm] = useState('')
 
-    const updateStudentStatus = (id: number, status: string, reason: string = "") => {
-        setData(prevStudents =>
-            prevStudents.map(student =>
-                student.id === id ? { ...student, status: status as "pending" | "sending" | "sent" | "failed", reason } : student
+    const updateStatus = (id: number, status: string, reason: string = "", isStudent: boolean) => {
+        const updateFunction = isStudent ? setStudentData : setVolunteerData;
+        updateFunction(prevData =>
+            prevData.map(item =>
+                item.id === id ? { ...item, status: status as "pending" | "sending" | "sent" | "failed", reason } : item
             )
         )
     }
@@ -49,98 +56,110 @@ export default function QRCodeEmailSender() {
         const fetchData = async () => {
             const peopleData = await getAllPeople();
             if (peopleData) {
-                setData(peopleData);
-                console.log(peopleData)
+                setStudentData(peopleData);
+            }
+            const volunteersData = await getVolunteersInfo();
+            if (volunteersData) {
+                setVolunteerData(volunteersData);
             }
         };
         fetchData();
     }, []);
 
-    const handleSendEmail = async (id: number) => {
-        console.log("Sending email to student with ID:", id)
-        updateStudentStatus(id, "sending")
+    const handleSendEmail = async (id: number, isStudent: boolean) => {
+        console.log(`Sending email to ${isStudent ? 'student' : 'volunteer'} with ID:`, id)
+        updateStatus(id, "sending", "", isStudent)
         try {
-            await sendEmail(id)
-            updateStudentStatus(id, "sent")
+            await sendEmail(id, isStudent ? 'student' : 'volunteer')
+            updateStatus(id, "sent", "", isStudent)
         } catch (error) {
-            updateStudentStatus(id, "failed", (error as Error).message)
+            updateStatus(id, "failed", (error as Error).message, isStudent)
         }
     }
 
     const handleSendAllEmails = async () => {
-        for (const student of filteredStudents) {
-            if (student.status !== "sent") {
-                await handleSendEmail(student.id)
+        const data = activeTab === 'students' ? filteredStudents : filteredVolunteers;
+        for (const item of data) {
+            if (item.status !== "sent") {
+                await handleSendEmail(item.id, activeTab === 'students')
             }
         }
     }
 
     const filteredStudents = useMemo(() => {
-        return data.filter(item =>
+        return studentData.filter(item =>
             (item.college_roll?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
             (item.phone?.toString().includes(searchTerm) ?? false) ||
             (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
         )
-    }, [data, searchTerm])
+    }, [studentData, searchTerm])
 
-    const sentCount = filteredStudents.filter(s => s.status === "sent").length
-    const totalCount = filteredStudents.length
+    const filteredVolunteers = useMemo(() => {
+        return volunteerData.filter(item =>
+            (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+            (item.phone?.toString().includes(searchTerm) ?? false) ||
+            (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+        )
+    }, [volunteerData, searchTerm])
+
+    const activeData = activeTab === 'students' ? filteredStudents : filteredVolunteers;
+    const sentCount = activeData.filter(s => s.status === "sent").length
+    const totalCount = activeData.length
     const progressPercentage = (sentCount / totalCount) * 100
 
     const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
-        const student = filteredStudents[index]
-
+        const item = activeData[index]
+        const isStudent = activeTab === 'students'
 
         return (
             <div style={{ ...style, width: '100%' }} className={`flex items-center border-b gap-16 hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                <div className="w-[130px] p-4 truncate">{student.college_roll}</div>
-                <div className="w-[250px] p-4 truncate">{student.email}</div>
-                <div className="w-[180px] p-4 truncate">{student.phone}</div>
+                <div className="w-[130px] p-4 truncate">{isStudent ? (item as StudentData).college_roll : (item as VolunteerData).name}</div>
+                <div className="w-[250px] p-4 truncate">{item.email}</div>
+                <div className="w-[180px] p-4 truncate">{item.phone}</div>
                 <div className="flex-shrink-0 w-[80px] px-2 py-3 ">
                     <Badge variant={
-                        student.status === "sent" ? "default" :
-                            student.status === "sending" ? "outline" :
-                                student.status === "failed" ? "destructive" : "secondary"
+                        item.status === "sent" ? "default" :
+                            item.status === "sending" ? "outline" :
+                                item.status === "failed" ? "destructive" : "secondary"
                     }>
-                        {student.status}
+                        {item.status}
                     </Badge>
                 </div>
                 <div className="flex-shrink-0 w-[100px] px-2 py-3">
-                    {(student.status !== "sending") && (
+                    {(item.status !== "sending") && (
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleSendEmail(student.id)}
-                            disabled={student.status === "sending"}
+                            onClick={() => handleSendEmail(item.id, isStudent)}
+                            disabled={item.status === "sending"}
                             className="w-full"
                         >
-                            {student.status === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> :
+                            {item.status === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> :
                                 <Send className="h-4 w-4 mr-1" />}
-                            {student.status === "sent" ? "Resend" :
-                                student.status === "failed" ? "Retry" : "Send"}
+                            {item.status === "sent" ? "Resend" :
+                                item.status === "failed" ? "Retry" : "Send"}
                         </Button>
                     )}
                 </div>
                 <div className="flex-shrink-0 w-[80px] px-2 py-3">
-                    {student.qrcode && (
-                        <Dialog >
+                    {item.qrcode && (
+                        <Dialog>
                             <DialogTrigger asChild>
                                 <Button
                                     variant="ghost"
                                     size="sm"
-
                                 >
                                     <QrCode className="h-4 w-4" />
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-md">
                                 <DialogHeader>
-                                    <DialogTitle>QR Code for {student.college_roll}</DialogTitle>
+                                    <DialogTitle>QR Code for {isStudent ? (item as StudentData).college_roll : (item as VolunteerData).name}</DialogTitle>
                                 </DialogHeader>
                                 <div className="flex items-center justify-center p-6">
-                                    {student.qrcode && student.status === "sent" && (
+                                    {item.qrcode && item.status === "sent" && (
                                         <Image
-                                            src={student.qrcode}
+                                            src={item.qrcode}
                                             alt="QR Code" width={200}
                                             height={200}
                                             className="w-auto h-auto"
@@ -172,53 +191,110 @@ export default function QRCodeEmailSender() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid gap-6">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h2 className="text-lg font-semibold">Progress</h2>
-                                <p className="text-sm text-muted-foreground">{sentCount} of {totalCount} emails sent</p>
+                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'students' | 'volunteers')}>
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="students">Students</TabsTrigger>
+                            <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="students">
+                            <div className="grid gap-6">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-lg font-semibold">Progress</h2>
+                                        <p className="text-sm text-muted-foreground">{sentCount} of {totalCount} emails sent</p>
+                                    </div>
+                                    <Button onClick={handleSendAllEmails} className="mb-4">
+                                        <Send className="mr-2 h-4 w-4" />
+                                        Send All Emails
+                                    </Button>
+                                </div>
+                                <Progress value={progressPercentage} className="w-full" />
+                                <div className="relative">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search by roll number, email, or phone"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="pl-10 py-2"
+                                    />
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                                </div>
+                                <div className="rounded-md border">
+                                    <div className="flex items-center font-semibold border-b bg-gray-100 text-sm gap-16">
+                                        <div className="w-[150px] p-4">College Roll</div>
+                                        <div className="w-[250px] p-4">Email</div>
+                                        <div className="w-[180px] p-4">Phone</div>
+                                        <div className="flex-shrink-0 w-[80px] px-2 py-3">Status</div>
+                                        <div className="flex-shrink-0 w-[100px] px-2 py-3">Action</div>
+                                        <div className="flex-shrink-0 w-[80px] px-2 py-3">QR Code</div>
+                                    </div>
+                                    <div style={{ height: '400px', width: '100%' }}>
+                                        <AutoSizer>
+                                            {({ height, width }) => (
+                                                <List
+                                                    height={height}
+                                                    width={width}
+                                                    itemCount={filteredStudents.length}
+                                                    itemSize={45}
+                                                >
+                                                    {Row}
+                                                </List>
+                                            )}
+                                        </AutoSizer>
+                                    </div>
+                                </div>
                             </div>
-                            <Button onClick={handleSendAllEmails} className="mb-4">
-                                <Send className="mr-2 h-4 w-4" />
-                                Send All Emails
-                            </Button>
-                        </div>
-                        <Progress value={progressPercentage} className="w-full" />
-                        <div className="relative">
-                            <Input
-                                type="text"
-                                placeholder="Search by roll number, email, or phone"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 py-2"
-                            />
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                        </div>
-                        <div className="rounded-md border">
-                            <div className="flex items-center font-semibold border-b bg-gray-100 text-sm gap-16">
-                                <div className="w-[150px] p-4">College Roll</div>
-                                <div className="w-[250px] p-4">Email</div>
-                                <div className="w-[180px] p-4">Phone</div>
-                                <div className="flex-shrink-0 w-[80px] px-2 py-3">Status</div>
-                                <div className="flex-shrink-0 w-[100px] px-2 py-3">Action</div>
-                                <div className="flex-shrink-0 w-[80px] px-2 py-3">QR Code</div>
+                        </TabsContent>
+                        <TabsContent value="volunteers">
+                            <div className="grid gap-6">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-lg font-semibold">Progress</h2>
+                                        <p className="text-sm text-muted-foreground">{sentCount} of {totalCount} emails sent</p>
+                                    </div>
+                                    <Button onClick={handleSendAllEmails} className="mb-4">
+                                        <Send className="mr-2 h-4 w-4" />
+                                        Send All Emails
+                                    </Button>
+                                </div>
+                                <Progress value={progressPercentage} className="w-full" />
+                                <div className="relative">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search by name, email, or phone"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="pl-10 py-2"
+                                    />
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                                </div>
+                                <div className="rounded-md border">
+                                    <div className="flex items-center font-semibold border-b bg-gray-100 text-sm gap-16">
+                                        <div className="w-[150px] p-4">Name</div>
+                                        <div className="w-[250px] p-4">Email</div>
+                                        <div className="w-[180px] p-4">Phone</div>
+                                        <div className="flex-shrink-0 w-[80px] px-2 py-3">Status</div>
+                                        <div className="flex-shrink-0 w-[100px] px-2 py-3">Action</div>
+                                        <div className="flex-shrink-0 w-[80px] px-2 py-3">QR Code</div>
+                                    </div>
+                                    <div style={{ height: '400px', width: '100%' }}>
+                                        <AutoSizer>
+                                            {({ height, width }) => (
+                                                <List
+                                                    height={height}
+                                                    width={width}
+                                                    itemCount={filteredVolunteers.length}
+                                                    itemSize={45}
+                                                >
+                                                    {Row}
+                                                </List>
+                                            )}
+                                        </AutoSizer>
+                                    </div>
+                                </div>
                             </div>
-                            <div style={{ height: '400px', width: '100%' }}>
-                                <AutoSizer>
-                                    {({ height, width }) => (
-                                        <List
-                                            height={height}
-                                            width={width}
-                                            itemCount={filteredStudents.length}
-                                            itemSize={45}
-                                        >
-                                            {Row}
-                                        </List>
-                                    )}
-                                </AutoSizer>
-                            </div>
-                        </div>
-                    </div>
+                        </TabsContent>
+                    </Tabs>
                 </CardContent>
             </Card>
         </div>
