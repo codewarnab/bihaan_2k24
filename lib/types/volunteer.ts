@@ -10,4 +10,5 @@ export type VolunteerData = {
     status: "pending" | "sending" | "sent" | "failed";
     reason: string;
     qrcode: string;
+    team:string;
 };

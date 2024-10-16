@@ -94,6 +94,7 @@ export default function VolunteersDashboard({ searchTerm ,user}: VolunteersDashb
                 <div className="flex-1 p-4 truncate">{item.college_roll}</div>
                 <div className="flex-1 p-4 truncate">{item.email}</div>
                 <div className="flex-1 p-4 truncate">{item.phone}</div>
+                <div className="flex-1 p-4">{item.team}</div>
                 <div className="flex-1 p-4">{item.veg_nonveg}</div>
                 <div className="flex-1 p-4">
                     <Button
@@ -131,6 +132,7 @@ export default function VolunteersDashboard({ searchTerm ,user}: VolunteersDashb
                     <div className="flex-1 p-4">College Roll</div>
                     <div className="flex-1 p-4">Email</div>
                     <div className="flex-1 p-4">Phone</div>
+                    <div className="flex-1 p-4">Team</div> 
                     <div className="flex-1 p-4">Veg/NonVeg</div>
                     <div className="flex-1 p-4">Food</div>
                 </div>
