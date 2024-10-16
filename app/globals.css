@@ -169,3 +169,7 @@ body {
 #html5-qrcode-button-camera-stop{
   margin-top: 20px; 
 }
+
+#html5-qrcode-anchor-scan-type-change{
+  display: none;
+}
