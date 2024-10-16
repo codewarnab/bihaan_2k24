@@ -8,7 +8,7 @@ import AutoSizer from "react-virtualized-auto-sizer"
 import { getFacultiesInfo } from "@/utils/functions/faculties/getFacultiesInfo"
 import { FacultyData } from "@/lib/types/faculty"
 import { supabase } from "@/lib/supabase-client"
-import { markFoodCollectedVolunteer } from "@/utils/functions/faculties/markAsFoodCollctedFaculy"
+import { markFoodCollectedfaculty } from "@/utils/functions/faculties/markAsFoodCollctedFaculy"
 import { IUser } from "@/lib/types/user"
 interface FacultyDashboardProps {
     searchTerm: string
@@ -104,7 +104,7 @@ export default function FacultyDashboard({ searchTerm ,user }: FacultyDashboardP
                         variant={item.food ? "outline" : "default"}
                         size="sm"
                         onClick={() =>
-                            markFoodCollectedVolunteer(
+                            markFoodCollectedfaculty(
                                 item.id,
                                 data,
                                 setData,

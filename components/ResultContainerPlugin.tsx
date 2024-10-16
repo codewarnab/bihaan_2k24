@@ -20,7 +20,6 @@ import { markMerchandiseCollected } from '@/utils/functions/students/markAsMerch
 import { formatDistanceToNow } from 'date-fns';
 import { Log } from '@/lib/types/log'
 import { markFoodCollectedVolunteer } from "@/utils/functions/volunteers/markFoodCollected"
-import Link from 'next/link'
 
 
 type ScanResult = {
@@ -103,16 +102,7 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
         }
     }, [fetchStatus, results]);
 
-    if (!user || !(user.isGod || user.isAdmin)) {
-        return (
-            <div className="container mx-auto p-8 flex items-center justify-center min-h-screen">
-                <h1 className="text-4xl font-bold text-center text-red-600">
-                    You are not authorized. Please <Link href='/contact' className='underline'>contact
-                    </Link> the developer.
-                </h1>
-            </div>
-        )
-    }
+    
 
     const fetchLogs = async (collegeRoll: string) => {
         const { data: logData, error: logError } = await supabase
@@ -198,12 +188,12 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
                         Scan Again
                     </Button>
 
-                    {status && (
+                    {status &&  (
                         <>
                             <Button onClick={() => {
                                 if (scanResult) {
                                     if (scanResult.isVolunteer) {
-                                        markFoodCollectedVolunteer(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
+                                        markFoodCollectedVolunteer(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll, user);
                                     } else {
                                         markFoodCollected(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
                                     }
@@ -215,7 +205,7 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
                                 {status.food ? 'Food Collected' : 'Mark Food as Collected'}
                             </Button>
 
-                            {!scanResult.isVolunteer && (
+                            { scanResult && !scanResult.isVolunteer && (
                                 <Button
                                     onClick={() => {
                                         if (scanResult) {

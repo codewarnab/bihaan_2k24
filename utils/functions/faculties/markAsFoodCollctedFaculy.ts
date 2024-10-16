@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase-client';
 import { toast } from 'sonner';
 import { FacultyData } from '@/lib/types/faculty';
 
-export const markFoodCollectedVolunteer = async (
+export const markFoodCollectedfaculty = async (
     id: number,
     data: FacultyData[],
     setData: React.Dispatch<React.SetStateAction<FacultyData[]>>,

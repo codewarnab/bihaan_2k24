@@ -1,5 +1,6 @@
 // src/utils/toggleFoodCollection.ts
 import { supabase } from '@/lib/supabase-client';
+import { IUser } from '@/lib/types/user';
 import { toast } from 'sonner';
 
 export const markFoodCollectedVolunteer = async (
@@ -8,7 +9,8 @@ export const markFoodCollectedVolunteer = async (
     setVolunteerStatus: React.Dispatch<React.SetStateAction<{ food: boolean, college_roll: string } | null>>,
     organizer_name: string,
     organizer_email: string,
-    college_roll: string
+    college_roll: string,
+    user? : IUser | null
 ) => {
     if (!volunteerStatus) {
         toast.error('No volunteer data found.');
@@ -20,6 +22,11 @@ export const markFoodCollectedVolunteer = async (
         return;
     }
 
+    if (user && !(user.isAdmin || user.isGod)) {
+        toast.error(`You are not authorized to perform this action.`);
+        return;
+    }
+    
     const newFoodStatus = true;
     const { error } = await supabase
         .from('volunteers')
