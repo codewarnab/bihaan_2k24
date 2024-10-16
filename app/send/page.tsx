@@ -82,9 +82,8 @@ export default function QRCodeEmailSender() {
     const handleSendAllEmails = async () => {
         const data = activeTab === 'students' ? filteredStudents : filteredVolunteers;
         for (const item of data) {
-            if (item.status !== "sent") {
+            
                 await handleSendEmail(item.id, activeTab === 'students')
-            }
         }
     }
 
@@ -209,7 +208,7 @@ export default function QRCodeEmailSender() {
                             <TabsTrigger value="students">Students</TabsTrigger>
                             <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="students">
+                        <TabsContent value="students" className="p-6">
                             <div className="grid gap-6">
                                 <div className="flex justify-between items-center">
                                     <div>
@@ -258,7 +257,7 @@ export default function QRCodeEmailSender() {
                                 </div>
                             </div>
                         </TabsContent>
-                        <TabsContent value="volunteers">
+                        <TabsContent value="volunteers" className="p-6">
                             <div className="grid gap-6">
                                 <div className="flex justify-between items-center">
                                     <div>
