@@ -192,7 +192,7 @@ export default function QRCodeEmailSender() {
             <UserMenu
                 firstLinkHref="/logs"
                 firstLinkLabel="Logs"
-                secondLinkHref="/dashboard"
+                secondLinkHref="/"
                 secondLinkLabel="Dashboard"
             />
             <Card className="w-full mt-12">
