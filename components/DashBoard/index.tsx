@@ -76,27 +76,19 @@ export default function Dashboard() {
                     <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
                     <TabsTrigger value="faculty">Faculty</TabsTrigger>
                 </TabsList>
-                <TabsContent value="students">
+                <TabsContent value="students" className="p-6">
                     <Suspense fallback={<LoadingFallback />}>
-                        <StudentsDashboard searchTerm={searchTerm}
-                            user={user}
-                        />
+                        <StudentsDashboard searchTerm={searchTerm} user={user} />
                     </Suspense>
                 </TabsContent>
-                <TabsContent value="volunteers">
+                <TabsContent value="volunteers" className="p-6">
                     <Suspense fallback={<LoadingFallback />}>
-                        <VolunteersDashboard
-                            searchTerm={searchTerm}
-                            user={user}
-                        />
+                        <VolunteersDashboard searchTerm={searchTerm} user={user} />
                     </Suspense>
                 </TabsContent>
-                <TabsContent value="faculty">
+                <TabsContent value="faculty" className="p-6">
                     <Suspense fallback={<LoadingFallback />}>
-                        <FacultyDashboard
-                            searchTerm={searchTerm}
-                            user={user}
-                        />
+                        <FacultyDashboard searchTerm={searchTerm} user={user} />
                     </Suspense>
                 </TabsContent>
             </Tabs>
