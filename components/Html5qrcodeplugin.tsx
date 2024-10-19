@@ -30,6 +30,9 @@ const createConfig = (props: Html5QrcodePluginProps) => {
     if (props.disableFlip !== undefined) {
         config.disableFlip = props.disableFlip;
     }
+    config.videoConstraints = {
+        facingMode: { exact: "environment" }
+    };
 
     return config;
 };
