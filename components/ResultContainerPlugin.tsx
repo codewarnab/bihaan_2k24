@@ -221,10 +221,6 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
                             )}
                         </>
                     )}
-
-                    <DrawerClose asChild >
-                        <Button variant="outline">Close</Button>
-                    </DrawerClose>
                 </DrawerFooter>
             </DrawerContent>
         </Drawer>

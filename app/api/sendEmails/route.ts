@@ -4,19 +4,19 @@ import { sendEmail } from "@/utils/functions/emailService";
 import { StudentData } from "@/lib/types/student";
 import { VolunteerData } from "@/lib/types/volunteer";
 import QRCode from 'qrcode';
+
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-
 export async function POST(req: NextRequest) {
-    const { id, type ,userid } = await req.json();
+    const { id, type, userid } = await req.json();
     const { data: userdata } = await supabase.from('users')
         .select('isGod').eq('id', userid)
-    
+
     console.log("User data", userdata)
 
-    if (userdata &&  !userdata[0].isGod) {
+    if (userdata && !userdata[0].isGod) {
         return NextResponse.json({ error: "You are not authorized to perform this action." }, { status: 403 });
     }
     console.log(`Received request to send email for ${type} ID:`, id);
@@ -46,16 +46,15 @@ export async function POST(req: NextRequest) {
                 ${type === 'student' ? 'tshirt_size,' : ''}
                 id,
                 dept
-            `) 
+            `)
             .eq("id", id)
             .single() as { data: StudentData | VolunteerData, error: any };
+
         console.log(`Fetched ${type} data:`, person);
         if (error || !person) {
             console.error(`${type} not found or error fetching data:`, error);
             return NextResponse.json({ error: `${type} not found.` }, { status: 404 });
         }
-
-        console.log(`Fetched ${type} data:`, person);
 
         // Generate a QR code
         const qrData = {
@@ -66,7 +65,7 @@ export async function POST(req: NextRequest) {
             veg_nonveg: person.veg_nonveg,
             dept: person.dept,
             id: person.id,
-            isVolunteer,  
+            isVolunteer,
             ...(type === 'student' && { tshirt_size: (person as StudentData).tshirt_size }),
         };
 
@@ -118,10 +117,21 @@ export async function POST(req: NextRequest) {
 
         // Send the email with the QR code attached 
         try {
-            const emailSubject = type === 'student' ? "Your Student QR Code" : "Your Volunteer QR Code";
-            const emailBody = `<p>Hello ${person.name},</p><p>Please find your QR code below:</p>`;
+            const emailSubject = type === 'student' ? `${person.name}  BIHAAN 2024-25 PASS Details ` : `&{person.name} BIHAAN 2024-25 VOLUNTEER PASS Details`;
+            const emailData = {
+                name: person.name,
+                roll: person.college_roll,
+                email: person.email,
+                phone: person.phone,
+                veg_nonveg: person.veg_nonveg,
+                dept: person.dept,
+                id: person.id,
+                isVolunteer,
+                tshirt_size: type === 'student' ? (person as StudentData).tshirt_size : undefined,
+                qrCodeUrl: publicURL
+            };
 
-            await sendEmail(person.email, emailSubject, emailBody, [
+            await sendEmail(person.email, emailSubject, emailData, [
                 {
                     filename: `qr_${type}_${person.id}.png`,
                     content: Buffer.from(qrCodeData.split(',')[1], 'base64'),

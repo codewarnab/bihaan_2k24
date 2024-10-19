@@ -5,6 +5,10 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'ylhfltcmljebclbhdyuy.supabase.co',
+            },
+            {
+                protocol: 'https',
+                hostname: 'cdn2.iconfinder.com',
             }
         ]
     },
