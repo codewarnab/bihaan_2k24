@@ -10,8 +10,15 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 
 export async function POST(req: NextRequest) {
-    const { id, type } = await req.json();
+    const { id, type ,userid } = await req.json();
+    const { data: userdata } = await supabase.from('users')
+        .select('isGod').eq('id', userid)
+    
+    console.log("User data", userdata)
 
+    if (userdata &&  !userdata[0].isGod) {
+        return NextResponse.json({ error: "You are not authorized to perform this action." }, { status: 403 });
+    }
     console.log(`Received request to send email for ${type} ID:`, id);
 
     if (!id || !type) {

@@ -5,4 +5,5 @@ export interface IUser extends User {
     name: string;
     isAdmin: boolean;
     isGod: boolean;
+    id: string;
 } 

@@ -26,11 +26,24 @@ import Image from "next/image"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/lib/store/user"
 import Link from "next/link"
-const sendEmail = async (id: number, type: 'student' | 'volunteer') => {
+import { IUser } from "@/lib/types/user"
+import { toast } from "sonner"
+
+const sendEmail = async (id: number, type: 'student' | 'volunteer', user: IUser | null) => {
+    if (!user) {
+        toast.error("You are not authorized to perform this action.")
+        return;
+    }
+
     const response = await axios.post("/api/sendEmails", {
         id,
-        type,
+        type, 
+        userid: user.id
     });
+
+    if (response.status === 403) {
+        toast.error("You are not authorized to perform this action.");
+    }
 
     if (response.status !== 200) {
         throw new Error("Failed to send email");
@@ -44,7 +57,6 @@ export default function QRCodeEmailSender() {
     const [volunteerData, setVolunteerData] = useState<VolunteerData[]>([])
     const [searchTerm, setSearchTerm] = useState('')
     const { user } = useUser()
-
     const updateStatus = (id: number, status: string, reason: string = "", isStudent: boolean) => {
         const updateFunction = isStudent ? setStudentData : setVolunteerData;
         updateFunction(prevData =>
@@ -72,10 +84,11 @@ export default function QRCodeEmailSender() {
         console.log(`Sending email to ${isStudent ? 'student' : 'volunteer'} with ID:`, id)
         updateStatus(id, "sending", "", isStudent)
         try {
-            await sendEmail(id, isStudent ? 'student' : 'volunteer')
+            await sendEmail(id, isStudent ? 'student' : 'volunteer',user)
             updateStatus(id, "sent", "", isStudent)
         } catch (error) {
             updateStatus(id, "failed", (error as Error).message, isStudent)
+            toast.error((error as Error).message)
         }
     }
 
@@ -108,16 +121,7 @@ export default function QRCodeEmailSender() {
     const totalCount = activeData.length
     const progressPercentage = (sentCount / totalCount) * 100
 
-    if (!user || !user.isGod) {
-        return (
-            <div className="container mx-auto p-8 flex items-center justify-center min-h-screen">
-                <h1 className="text-4xl font-bold text-center text-red-600">
-                    You are not authorized. Please <Link href='/contact' className='underline'>contact
-                    </Link> the developer.
-                </h1>
-            </div>
-        )
-    }
+    
 
     const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
         const item = activeData[index]
@@ -183,6 +187,17 @@ export default function QRCodeEmailSender() {
                         </Dialog>
                     )}
                 </div>
+            </div>
+        )
+    }
+
+    if (!user || !user.isGod) {
+        return (
+            <div className="container mx-auto p-8 flex items-center justify-center min-h-screen">
+                <h1 className="text-4xl font-bold text-center text-red-600">
+                    You are not authorized. Please <Link href='/contact' className='underline'>contact
+                    </Link> the developer.
+                </h1>
             </div>
         )
     }
