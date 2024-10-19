@@ -1,3 +1,4 @@
+"use client";
 import { redirect } from 'next/navigation'
 import Dashboard from '@/components/DashBoard'
 import { useUser } from '@/lib/store/user'
