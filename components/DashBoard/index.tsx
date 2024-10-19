@@ -1,4 +1,3 @@
-'use client'
 
 import { useState, Suspense, lazy } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Search } from 'lucide-react'
 import UserMenu from '@/components/nav'
 import { Skeleton } from "@/components/ui/skeleton"
-import { useUser } from '@/lib/store/user'
+import { IUser } from '@/lib/types/user'
 const VolunteersDashboard = lazy(() => import('@/components/DashBoard/VolunteerDashboard'))
 const FacultyDashboard = lazy(() => import('@/components/DashBoard/FacultyDashboard'))
 const StudentsDashboard = lazy(() => import('@/components/DashBoard/StudentDashBoard'))
@@ -25,10 +24,9 @@ function LoadingFallback() {
         </div>
     )
 }
-
-export default function Dashboard() {
+export default function Dashboard({ user }: { user: IUser |null }) {
     const [searchTerm, setSearchTerm] = useState('')
-    const { user } = useUser()
+    
 
 
 

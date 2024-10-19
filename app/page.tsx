@@ -1,10 +1,15 @@
+import { redirect } from 'next/navigation'
 import Dashboard from '@/components/DashBoard'
-import React from 'react'
+import { useUser } from '@/lib/store/user'
 
-const page = () => {
+export default function Page() {
+  const { user } = useUser()
+
+  if (user?.isAdmin) {
+    redirect('/scan')
+  }
+
   return (
-    <Dashboard />
+    <Dashboard user={user} />
   )
 }
-
-export default page
