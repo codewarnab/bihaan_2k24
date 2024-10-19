@@ -134,7 +134,7 @@ body {
 }
 
 
-#html5-qrcode-button-camera-permission, #html5-qrcode-anchor-scan-type-change , #html5-qrcode-button-camera-stop ,#html5-qrcode-button-file-selection ,#html5-qrcode-button-camera-start{
+#html5-qrcode-button-camera-permission, #html5-qrcode-anchor-scan-type-change , #html5-qrcode-button-camera-stop  ,#html5-qrcode-button-camera-start{
     align-items: center;
     display: inline-flex;
     justify-content: center;
@@ -156,7 +156,7 @@ body {
 
 
 
-#html5-qrcode-button-camera-permission:hover ,#html5-qrcode-anchor-scan-type-change:hover ,#html5-qrcode-button-camera-stop:hover ,#html5-qrcode-button-file-selection:hover ,#html5-qrcode-button-camera-start:hover{
+#html5-qrcode-button-camera-permission:hover ,#html5-qrcode-anchor-scan-type-change:hover ,#html5-qrcode-button-camera-stop:hover  ,#html5-qrcode-button-camera-start:hover{
     background-color: #121212;
     color: gray;
 }
@@ -175,5 +175,9 @@ body {
 }
 
 #html5qr-code-full-region__dashboard_section_csr span:first-child {
+  display: none;
+}
+
+#html5-qrcode-button-file-selection{
   display: none;
 }
