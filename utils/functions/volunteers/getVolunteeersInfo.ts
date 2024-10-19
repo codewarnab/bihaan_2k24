@@ -8,6 +8,7 @@ export async function getVolunteersInfo() {
         console.error("Error fetching data from volunteers table:", error);
         return null;
     }
+    console.log("Volunteers data fetched successfully:", data);
     return data;
 
 }

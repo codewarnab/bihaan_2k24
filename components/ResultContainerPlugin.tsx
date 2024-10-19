@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
     Drawer,
-    DrawerClose,
     DrawerContent,
     DrawerDescription,
     DrawerFooter,
@@ -32,6 +31,7 @@ type ScanResult = {
     dept: string
     id: number
     isVolunteer: boolean 
+    team?: string
 }
 
 type Result = {
@@ -143,6 +143,12 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
                             <Building2 className="w-5 h-5 text-primary" />
                             <span>{scanResult.roll} - {scanResult.dept.toUpperCase()}</span>
                         </div>
+                        {scanResult.isVolunteer && scanResult.team && (
+                            <div className="flex items-center space-x-2">
+                                <Building2 className="w-5 h-5 text-primary" />
+                                <span>Team: {scanResult.team}</span>
+                            </div>
+                        )}
                         <div className="flex items-center space-x-2">
                             <Mail className="w-5 h-5 text-primary" />
                             <span>{scanResult.email}</span>

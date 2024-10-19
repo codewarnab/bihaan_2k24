@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import EmailTemplate from '@/components/EmailTemplate';
+import volunteerTemplate from '@/components/EmailTemplate';
 import { ReactElement } from 'react';
 
 const transport = nodemailer.createTransport({
@@ -24,17 +24,16 @@ type EmailData = {
     name: string;
     roll: string;
     email: string;
-    phone: string;
     veg_nonveg: string;
     dept: string;
-    id: string;
     isVolunteer: boolean;
-    tshirt_size?: string;
+    tshirt_size?: string | null ;
     qrCodeUrl: string;
-}
+    team?: string;
+};
 
 export const sendEmail = async (to: string, subject: string, emailData: EmailData, attachments: Attachment[]) => {
-    const emailContent = EmailTemplate({ emailData });
+    const emailContent = volunteerTemplate({ emailData });
 
     try {
         const info = await transport.sendMail({

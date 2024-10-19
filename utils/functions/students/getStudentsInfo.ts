@@ -9,5 +9,6 @@ export async function getAllPeople() {
         return null;
     }
 
+    console.log("People data fetched successfully:", data);
     return data;
 }

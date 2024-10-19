@@ -11,14 +11,18 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function POST(req: NextRequest) {
     const { id, type, userid } = await req.json();
-    const { data: userdata } = await supabase.from('users')
-        .select('isGod').eq('id', userid)
 
-    console.log("User data", userdata)
+    const { data: userdata } = await supabase
+        .from('users')
+        .select('isGod')
+        .eq('id', userid);
 
-    if (userdata && !userdata[0].isGod) {
+    console.log("User data", userdata);
+
+    if (userdata && !userdata[0]?.isGod) {
         return NextResponse.json({ error: "You are not authorized to perform this action." }, { status: 403 });
     }
+
     console.log(`Received request to send email for ${type} ID:`, id);
 
     if (!id || !type) {
@@ -28,6 +32,7 @@ export async function POST(req: NextRequest) {
 
     const table = type === 'student' ? 'people' : 'volunteers';
     const isVolunteer = type === 'volunteer';
+
     try {
         console.log(`Updating ${type} status to 'sending' for ID:`, id);
         await supabase
@@ -44,16 +49,21 @@ export async function POST(req: NextRequest) {
                 college_roll,
                 veg_nonveg,
                 ${type === 'student' ? 'tshirt_size,' : ''}
+                ${isVolunteer ? 'team,' : ''}
                 id,
                 dept
             `)
             .eq("id", id)
             .single() as { data: StudentData | VolunteerData, error: any };
 
-        console.log(`Fetched ${type} data:`, person);
         if (error || !person) {
             console.error(`${type} not found or error fetching data:`, error);
             return NextResponse.json({ error: `${type} not found.` }, { status: 404 });
+        }
+
+        // Validate fields that must not be null
+        if (!person.name || !person.college_roll || !person.email || !person.phone || !person.veg_nonveg || !person.dept || !person.id) {
+            return NextResponse.json({ error: "One or more required fields are null." }, { status: 400 });
         }
 
         // Generate a QR code
@@ -67,6 +77,7 @@ export async function POST(req: NextRequest) {
             id: person.id,
             isVolunteer,
             ...(type === 'student' && { tshirt_size: (person as StudentData).tshirt_size }),
+            ...(isVolunteer && { team: (person as VolunteerData).team }),
         };
 
         // Generate a QR code with the prepared data
@@ -117,18 +128,17 @@ export async function POST(req: NextRequest) {
 
         // Send the email with the QR code attached 
         try {
-            const emailSubject = type === 'student' ? `${person.name}  BIHAAN 2024-25 PASS Details ` : `&{person.name} BIHAAN 2024-25 VOLUNTEER PASS Details`;
+            const emailSubject = type === 'student' ? `${person.name}  BIHAAN 2024-25 PASS Details ` : `${person.name} BIHAAN 2024-25 VOLUNTEER PASS Details`;
             const emailData = {
                 name: person.name,
                 roll: person.college_roll,
                 email: person.email,
-                phone: person.phone,
                 veg_nonveg: person.veg_nonveg,
                 dept: person.dept,
-                id: person.id,
                 isVolunteer,
                 tshirt_size: type === 'student' ? (person as StudentData).tshirt_size : undefined,
-                qrCodeUrl: publicURL
+                qrCodeUrl: publicURL,
+                team: isVolunteer ? (person as VolunteerData).team : undefined
             };
 
             await sendEmail(person.email, emailSubject, emailData, [

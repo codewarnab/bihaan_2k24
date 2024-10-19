@@ -134,7 +134,7 @@ body {
 }
 
 
-#html5-qrcode-button-camera-permission, #html5-qrcode-anchor-scan-type-change , #html5-qrcode-button-camera-stop  ,#html5-qrcode-button-camera-start{
+#html5-qrcode-button-camera-permission, #html5-qrcode-anchor-scan-type-change , #html5-qrcode-button-camera-stop ,#html5 ,#html5-qrcode-button-camera-start{
     align-items: center;
     display: inline-flex;
     justify-content: center;

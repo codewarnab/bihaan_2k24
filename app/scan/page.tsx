@@ -42,7 +42,7 @@ export default function QRCodeScanner() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col p-4 justify-center">
-      {!false ? (
+      {!isDesktop ? (
         <>
           <div className="flex justify-between items-center mb-4">
             <Button
