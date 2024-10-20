@@ -12,7 +12,7 @@ type EmailData = {
     qrCodeUrl: string
 }
 
-export default function VolunteerTemplate({ emailData }: { emailData: EmailData }) {
+export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
     return (
         <div style={{
             fontFamily: "'Recoleta', 'Abhaya Libre', sans-serif",
@@ -34,7 +34,9 @@ export default function VolunteerTemplate({ emailData }: { emailData: EmailData 
 
             <div style={{ marginBottom: '20px', color: '#ffffff' }}>
                 <p style={{ margin: '5px 0', fontSize: 'clamp(18px, 4vw, 24px)' }}>{emailData.name}</p>
-                <p style={{ margin: '5px 0', fontSize: 'clamp(16px, 3vw, 20px)' }}>{emailData.team}</p>
+                {emailData.isVolunteer && emailData.team && (
+                    <p style={{ margin: '5px 0', fontSize: 'clamp(16px, 3vw, 20px)' }}>{emailData.team}</p>
+                )}
             </div>
 
             <div style={{
@@ -45,6 +47,9 @@ export default function VolunteerTemplate({ emailData }: { emailData: EmailData 
                 <p style={{ margin: '5px 0', color: '#a67bff' }}>Roll Number : <span style={{ color: '#ffffff' }}>{emailData.roll}</span></p>
                 <p style={{ margin: '5px 0', color: '#a67bff' }}>Department : <span style={{ color: '#ffffff' }}>{emailData.dept}</span></p>
                 <p style={{ margin: '5px 0', color: '#a67bff' }}>Food preference : <span style={{ color: '#ffffff' }}>{emailData.veg_nonveg}</span></p>
+                {emailData.tshirt_size && (
+                    <p style={{ margin: '5px 0', color: '#a67bff' }}>T-shirt Size : <span style={{ color: '#ffffff' }}>{emailData.tshirt_size}</span></p>
+                )}
             </div>
 
             <div style={{
@@ -52,7 +57,7 @@ export default function VolunteerTemplate({ emailData }: { emailData: EmailData 
                 color: '#ff00ff',
                 fontSize: 'clamp(14px, 3vw, 18px)'
             }}>
-                <p style={{ margin: '5px 0' }}>DATES : OCTOBER 25-27, 2024</p>
+                <p style={{ margin: '5px 0' }}>DATE :  24-10-2024</p>
                 <p style={{ margin: '5px 0' }}>VENUE : RCCIIT College Campus Building</p>
             </div>
 
@@ -65,7 +70,7 @@ export default function VolunteerTemplate({ emailData }: { emailData: EmailData 
                 color: '#ffff00',
                 fontSize: 'clamp(12px, 2.5vw, 16px)',
                 marginBottom: '20px'
-            }}>The QR code attachment is mandatory for entry.</p>
+            }}>{emailData.isVolunteer ?  "The QR code  is mandatory for food." : "The QR code is mandatory for food and Merchandise" }</p>
 
             <div style={{
                 marginBottom: '20px',
@@ -74,8 +79,16 @@ export default function VolunteerTemplate({ emailData }: { emailData: EmailData 
             }}>
                 <p style={{ margin: '5px 0', color: '#ffffff' }}>Instructions :</p>
                 <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
-                    <li>QR code is mandatory for entry</li>
-                    <li>Follow the dress code</li>
+                    {emailData.isVolunteer ? (
+                        <>
+                            <li>Volunteers are requested to report at the venue by 8:00 AM</li>
+                        </>
+                    ) : (
+                        <>
+                            <li>Students are requested to report at the venue by 10:00 AM</li>
+                        </>
+                    )
+                    }
                 </ul>
             </div>
 
@@ -94,7 +107,7 @@ export default function VolunteerTemplate({ emailData }: { emailData: EmailData 
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                        color: '#E1306C', // Instagram brand color
+                        color: '#E1306C',
                         fontWeight: 'bold',
                         textDecoration: 'none',
                     }}
@@ -110,7 +123,7 @@ export default function VolunteerTemplate({ emailData }: { emailData: EmailData 
                 textShadow: '0 0 10px #ffffff',
                 margin: '20px 0 10px'
             }}>
-                BIHAAN 2024-25
+                BIHAAN 2024
             </h2>
 
             <p style={{

@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import volunteerTemplate from '@/components/EmailTemplate';
+import EmailTemplate from '@/components/EmailTemplate';
 import { ReactElement } from 'react';
 
 const transport = nodemailer.createTransport({
@@ -33,7 +33,7 @@ type EmailData = {
 };
 
 export const sendEmail = async (to: string, subject: string, emailData: EmailData, attachments: Attachment[]) => {
-    const emailContent = volunteerTemplate({ emailData });
+    const emailContent = EmailTemplate({ emailData });
 
     try {
         const info = await transport.sendMail({

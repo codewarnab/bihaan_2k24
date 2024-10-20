@@ -81,7 +81,11 @@ export async function POST(req: NextRequest) {
         };
 
         // Generate a QR code with the prepared data
-        const qrCodeData = await QRCode.toDataURL(JSON.stringify(qrData));
+        const qrCodeData = await QRCode.toDataURL(JSON.stringify(qrData), {
+            width: 500,
+            margin: 4,
+        });
+
         console.log(`Generated QR code data for ${type}:`, person.college_roll);
 
         // Upload the QR code to Supabase storage
