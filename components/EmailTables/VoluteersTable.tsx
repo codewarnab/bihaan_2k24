@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { Loader2, QrCode, Send } from 'lucide-react'
+import { AlertCircle, Loader2, QrCode, Send } from 'lucide-react'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { getVolunteersInfo } from '@/utils/functions/volunteers/getVolunteeersInfo'
@@ -22,13 +22,14 @@ export default function VolunteerTable({ searchTerm }: VolunteersDashboardProps)
     const [data, setData] = useState<VolunteerData[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [isSendingAll, setIsSendingAll] = useState<boolean>(false)
-    const { user  } = useUser()
+    const { user } = useUser()
 
     useEffect(() => {
         const fetchData = async () => {
             const peopleData = await getVolunteersInfo()
             if (peopleData) {
                 setData(peopleData)
+
             }
             setIsLoading(false)
         }
@@ -130,13 +131,28 @@ export default function VolunteerTable({ searchTerm }: VolunteersDashboardProps)
                 <div className="flex-1 p-4 truncate">{item.phone}</div>
                 <div className="flex-1 p-4 truncate">{item.team}</div>
                 <div className="flex-1 p-4 ">
-                    <Badge variant={
-                        item.status === "sent" ? "default" :
-                            item.status === "sending" ? "outline" :
-                                item.status === "failed" ? "destructive" : "secondary"
-                    }>
-                        {item.status}
-                    </Badge>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Badge variant={
+                                item.status === "sent" ? "default" :
+                                    item.status === "sending" ? "outline" :
+                                        item.status === "failed" ? "destructive" : "secondary"
+                            }>
+                                {item.status}
+                            </Badge>
+                        </DialogTrigger>
+                        {item.status === "failed" && item.reason && (
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Error Details</DialogTitle>
+                                </DialogHeader>
+                                <div className="flex items-center space-x-2">
+                                    <AlertCircle className="h-5 w-5 text-destructive" />
+                                    <p>{item.reason}</p>
+                                </div>
+                            </DialogContent>
+                        )}
+                    </Dialog>
                 </div>
                 <div className="flex-1 p-4">
                     {(item.status !== "sending") && (

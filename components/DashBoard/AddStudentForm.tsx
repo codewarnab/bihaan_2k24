@@ -39,7 +39,7 @@ const formSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
     phone: z.string().regex(/^\d{10}$/, { message: "Phone number must be 10 digits." }),
     tshirt_size: z.enum(["XS", "S", "M", "L", "XL", "XXL"], { required_error: "Please select a T-shirt size." }),
-    veg_nonveg: z.enum(["veg", "nonveg"], { required_error: "Please select a preference." }),
+    veg_nonveg: z.enum(["Veg", "Non-Veg"], { required_error: "Please select a preference." }),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -211,8 +211,8 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="veg">Veg</SelectItem>
-                                                <SelectItem value="nonveg">Non-Veg</SelectItem>
+                                                <SelectItem value="Veg">Veg</SelectItem>
+                                                <SelectItem value="Non-Veg">Non-Veg</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />

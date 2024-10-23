@@ -58,11 +58,16 @@ export async function POST(req: NextRequest) {
 
         if (error || !person) {
             console.error(`${type} not found or error fetching data:`, error);
+            await supabase
+                .from(table)
+                .update({ status: "failed", reason: error.message })
+                .eq("id", id);
             return NextResponse.json({ error: `${type} not found.` }, { status: 404 });
         }
 
         // Validate fields that must not be null
         if (!person.name || !person.college_roll || !person.email || !person.phone || !person.veg_nonveg || !person.dept || !person.id) {
+            await supabase.from(table).update({ status: "failed", reason: "One or more required fields are null." }).eq("id", id);
             return NextResponse.json({ error: "One or more required fields are null." }, { status: 400 });
         }
 

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { Loader2, QrCode, Send } from 'lucide-react'
+import { AlertCircle, Loader2, QrCode, Send } from 'lucide-react'
 import { FixedSizeList as List } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { getAllPeople } from "@/utils/functions/students/getStudentsInfo"
@@ -122,13 +122,28 @@ export default function StudentsTable({ searchTerm }: StudentsDashboardProps) {
                 <div className="flex-1 p-4 truncate">{item.email}</div>
                 <div className="flex-1 p-4 truncate">{item.phone}</div>
                 <div className="flex-1 p-4 ">
-                    <Badge variant={
-                        item.status === "sent" ? "default" :
-                            item.status === "sending" ? "outline" :
-                                item.status === "failed" ? "destructive" : "secondary"
-                    }>
-                        {item.status}
-                    </Badge>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Badge variant={
+                                item.status === "sent" ? "default" :
+                                    item.status === "sending" ? "outline" :
+                                        item.status === "failed" ? "destructive" : "secondary"
+                            }>
+                                {item.status}
+                            </Badge>
+                        </DialogTrigger>
+                        {item.status === "failed" && item.reason && (
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Error Details</DialogTitle>
+                                </DialogHeader>
+                                <div className="flex items-center space-x-2">
+                                    <AlertCircle className="h-5 w-5 text-destructive" />
+                                    <p>{item.reason}</p>
+                                </div>
+                            </DialogContent>
+                        )}
+                    </Dialog>
                 </div>
                 <div className="flex-1 p-4">
                     {(item.status !== "sending") && (
