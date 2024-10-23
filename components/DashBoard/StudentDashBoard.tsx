@@ -14,10 +14,10 @@ import { IUser } from '@/lib/types/user'
 
 interface StudentsDashboardProps {
     searchTerm: string
-    user : IUser | null
+    user: IUser | null
 }
 
-export default function StudentsDashboard({ searchTerm,user }: StudentsDashboardProps) {
+export default function StudentsDashboard({ searchTerm, user }: StudentsDashboardProps) {
     const [data, setData] = useState<StudentData[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [merchLoadingIds, setMerchLoadingIds] = useState<Set<number>>(new Set())
@@ -68,9 +68,8 @@ export default function StudentsDashboard({ searchTerm,user }: StudentsDashboard
             (item.college_roll?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
             (item.phone?.toString().includes(searchTerm) ?? false) ||
             (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-        );
-    }, [data, searchTerm]);
-
+        )
+    }, [data, searchTerm])
 
     const totalStudents = filteredData.length
     const foodCollected = filteredData.filter(item => item.food).length
@@ -84,7 +83,7 @@ export default function StudentsDashboard({ searchTerm,user }: StudentsDashboard
                 <div style={{ ...style, width: '100%' }} className="flex items-center border-b hover:bg-gray-50 animate-pulse">
                     <div className="flex-1 p-4 bg-gray-200" />
                     <div className="flex-1 p-4 bg-gray-200" />
-                    <div className="flex-2 p-4 bg-gray-200" />
+                    <div className="flex-1 p-4 bg-gray-200" />
                     <div className="flex-1 p-4 bg-gray-200" />
                     <div className="flex-1 p-4 bg-gray-200" />
                     <div className="flex-1 p-4 bg-gray-200" />
@@ -98,7 +97,7 @@ export default function StudentsDashboard({ searchTerm,user }: StudentsDashboard
             <div style={{ ...style, width: '100%' }} className="flex items-center border-b hover:bg-gray-50">
                 <div className="flex-1 p-4">{item.name}</div>
                 <div className="flex-1 p-4 truncate">{item.college_roll}</div>
-                <div className="flex-2 p-4 truncate">{item.email}</div>
+                <div className="flex-1 p-4 truncate">{item.email}</div>
                 <div className="flex-1 p-4 truncate">{item.phone}</div>
                 <div className="flex-1 p-4">{item.veg_nonveg}</div>
                 <div className="flex-1 p-4">{item.tshirt_size}</div>
@@ -151,7 +150,7 @@ export default function StudentsDashboard({ searchTerm,user }: StudentsDashboard
                 <div className="flex items-center font-bold border-b bg-gray-100 rounded-sm">
                     <div className="flex-1 p-4">Name</div>
                     <div className="flex-1 p-4">College Roll</div>
-                    <div className="flex-2 p-4">Email</div>
+                    <div className="flex-1 p-4">Email</div>
                     <div className="flex-1 p-4">Phone</div>
                     <div className="flex-1 p-4">Veg/NonVeg</div>
                     <div className="flex-1 p-4">Size</div>

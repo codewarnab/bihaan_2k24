@@ -1,4 +1,3 @@
-
 import { useState, Suspense, lazy } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
@@ -10,6 +9,8 @@ const VolunteersDashboard = lazy(() => import('@/components/DashBoard/VolunteerD
 const FacultyDashboard = lazy(() => import('@/components/DashBoard/FacultyDashboard'))
 const StudentsDashboard = lazy(() => import('@/components/DashBoard/StudentDashBoard'))
 import Link from 'next/link'
+import AddStudentDialog from '@/components/DashBoard/AddStudentForm'
+
 function LoadingFallback() {
     return (
         <div className="space-y-4">
@@ -24,17 +25,13 @@ function LoadingFallback() {
         </div>
     )
 }
-export default function Dashboard({ user }: { user: IUser |null }) {
+
+export default function Dashboard({ user }: { user: IUser | null }) {
     const [searchTerm, setSearchTerm] = useState('')
-    
-
-
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value)
     }
-
-
 
     if (!user || !(user.isGod || user.isAdmin)) {
         return (
@@ -68,28 +65,33 @@ export default function Dashboard({ user }: { user: IUser |null }) {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={24} />
                 </div>
             </div>
-            <Tabs defaultValue="students" className="w-full">
-                <TabsList>
-                    <TabsTrigger value="students">Students</TabsTrigger>
-                    <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
-                    <TabsTrigger value="faculty">Faculty</TabsTrigger>
-                </TabsList>
-                <TabsContent value="students" className="p-6">
-                    <Suspense fallback={<LoadingFallback />}>
-                        <StudentsDashboard searchTerm={searchTerm} user={user} />
-                    </Suspense>
-                </TabsContent>
-                <TabsContent value="volunteers" className="p-6">
-                    <Suspense fallback={<LoadingFallback />}>
-                        <VolunteersDashboard searchTerm={searchTerm} user={user} />
-                    </Suspense>
-                </TabsContent>
-                <TabsContent value="faculty" className="p-6">
-                    <Suspense fallback={<LoadingFallback />}>
-                        <FacultyDashboard searchTerm={searchTerm} user={user} />
-                    </Suspense>
-                </TabsContent>
-            </Tabs>
+            <div className="flex justify-between items-center mb-4">
+                <Tabs defaultValue="students" className="w-full">
+                    <div className="flex justify-between items-center">
+                        <TabsList>
+                            <TabsTrigger value="students">Students</TabsTrigger>
+                            <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
+                            <TabsTrigger value="faculty">Faculty</TabsTrigger>
+                        </TabsList>
+                        <AddStudentDialog user={user} />
+                    </div>
+                    <TabsContent value="students" className="p-6">
+                        <Suspense fallback={<LoadingFallback />}>
+                            <StudentsDashboard searchTerm={searchTerm} user={user} />
+                        </Suspense>
+                    </TabsContent>
+                    <TabsContent value="volunteers" className="p-6">
+                        <Suspense fallback={<LoadingFallback />}>
+                            <VolunteersDashboard searchTerm={searchTerm} user={user} />
+                        </Suspense>
+                    </TabsContent>
+                    <TabsContent value="faculty" className="p-6">
+                        <Suspense fallback={<LoadingFallback />}>
+                            <FacultyDashboard searchTerm={searchTerm} user={user} />
+                        </Suspense>
+                    </TabsContent>
+                </Tabs>
+            </div>
         </div>
     )
 }

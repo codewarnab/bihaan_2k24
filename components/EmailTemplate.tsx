@@ -70,7 +70,7 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                 color: '#ffff00',
                 fontSize: 'clamp(12px, 2.5vw, 16px)',
                 marginBottom: '20px'
-            }}>{emailData.isVolunteer ?  "The QR code  is mandatory for food." : "The QR code is mandatory for food and Merchandise" }</p>
+            }}>{emailData.isVolunteer ? "The QR code  is mandatory for food." : "The QR code is mandatory for food and Merchandise"}</p>
 
             <div style={{
                 marginBottom: '20px',
@@ -141,6 +141,11 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                 <p style={{ margin: '2px 0' }}>Samprit Rup  (SPOC BIHAAN ) - 6371655296</p>
                 <p style={{ margin: '2px 0' }}>Basant Kumar Shaw (GS) - 7547627975</p>
                 <p style={{ margin: '2px 0' }}>Manish Biswas (Cultural AGS) - 9062342650</p>
+                <p style={{ margin: '2px 0' }}>Ankita Dhara  (Tech AGS) - 8820534958</p>
+                {emailData.isVolunteer && (
+                    <p style={{ margin: '2px 0' }}>Arnab Mondal (Technical Queries) - 6291912672</p>
+                 )
+                }
             </div>
         </div>
     );
