@@ -10,8 +10,11 @@ const FacultyDashboard = lazy(() => import('@/components/DashBoard/FacultyDashbo
 const StudentsDashboard = lazy(() => import('@/components/DashBoard/StudentDashBoard'))
 import Link from 'next/link'
 import AddStudentDialog from '@/components/DashBoard/AddStudentForm'
+import { useIsDesktop } from '@/hooks/useIsDesktop'
+import MobileStudentsDashboard from '@/components/DashBoard/MobileStudentDashbaord'
 
 function LoadingFallback() {
+
     return (
         <div className="space-y-4">
             <Skeleton className="h-4 w-[250px]" />
@@ -28,6 +31,7 @@ function LoadingFallback() {
 
 export default function Dashboard({ user }: { user: IUser | null }) {
     const [searchTerm, setSearchTerm] = useState('')
+    const isDesktop = useIsDesktop()
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value)
@@ -75,9 +79,14 @@ export default function Dashboard({ user }: { user: IUser | null }) {
                         </TabsList>
                         <AddStudentDialog user={user} />
                     </div>
-                    <TabsContent value="students" className="p-6">
+                    <TabsContent value="students" className={`${isDesktop && "p-6"  }`}>
                         <Suspense fallback={<LoadingFallback />}>
-                            <StudentsDashboard searchTerm={searchTerm} user={user} />
+                            {
+                                isDesktop ?
+                                    <StudentsDashboard searchTerm={searchTerm} user={user} />
+                                    :
+                                    <MobileStudentsDashboard searchTerm={searchTerm} user={user} />
+                            }
                         </Suspense>
                     </TabsContent>
                     <TabsContent value="volunteers" className="p-6">
