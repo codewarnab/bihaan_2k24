@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, Suspense, lazy } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
@@ -5,6 +7,14 @@ import { Search } from 'lucide-react'
 import UserMenu from '@/components/nav'
 import { Skeleton } from "@/components/ui/skeleton"
 import { IUser } from '@/lib/types/user'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
 const VolunteersDashboard = lazy(() => import('@/components/DashBoard/VolunteerDashboard'))
 const FacultyDashboard = lazy(() => import('@/components/DashBoard/FacultyDashboard'))
 const StudentsDashboard = lazy(() => import('@/components/DashBoard/StudentDashBoard'))
@@ -12,9 +22,9 @@ import Link from 'next/link'
 import AddStudentDialog from '@/components/DashBoard/AddStudentForm'
 import { useIsDesktop } from '@/hooks/useIsDesktop'
 import MobileStudentsDashboard from '@/components/DashBoard/MobileStudentDashbaord'
+import MobileVolunteersDashboard from '@/components/DashBoard/MobileVolunteerDashboard'
 
 function LoadingFallback() {
-
     return (
         <div className="space-y-4">
             <Skeleton className="h-4 w-[250px]" />
@@ -31,6 +41,7 @@ function LoadingFallback() {
 
 export default function Dashboard({ user }: { user: IUser | null }) {
     const [searchTerm, setSearchTerm] = useState('')
+    const [selectedTab, setSelectedTab] = useState('students')
     const isDesktop = useIsDesktop()
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,8 +60,8 @@ export default function Dashboard({ user }: { user: IUser | null }) {
     }
 
     return (
-        <div className="container mx-auto p-8 relative">
-            <h1 className="text-3xl font-bold mb-6">Bihaan 2024 Dashboard</h1>
+        <div className="container mx-auto p-7 relative">
+            <h1 className="text-3xl sm:text-2xl font-bold mb-6">Bihaan 2024 Dashboard</h1>
             {isDesktop &&
                 <UserMenu
                     firstLinkHref="/logs"
@@ -73,36 +84,66 @@ export default function Dashboard({ user }: { user: IUser | null }) {
                 </div>
             </div>
             <div className="flex justify-between items-center mb-4">
-                <Tabs defaultValue="students" className="w-full">
-                    <div className="flex justify-between items-center">
-                        <TabsList>
-                            <TabsTrigger value="students">Students</TabsTrigger>
-                            <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
-                            <TabsTrigger value="faculty">Faculty</TabsTrigger>
-                        </TabsList>
-                        <AddStudentDialog user={user} />
-                    </div>
-                    <TabsContent value="students" className={`${isDesktop && "p-6"}`}>
-                        <Suspense fallback={<LoadingFallback />}>
-                            {
-                                isDesktop ?
-                                    <StudentsDashboard searchTerm={searchTerm} user={user} />
-                                    :
+                {isDesktop ? (
+                    <Tabs defaultValue="students" className="w-full" onValueChange={(value) => setSelectedTab(value)}>
+                        <div className="flex justify-between items-center">
+                            <TabsList>
+                                <TabsTrigger value="students">Students</TabsTrigger>
+                                <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
+                                <TabsTrigger value="faculty">Faculty</TabsTrigger>
+                            </TabsList>
+                            <AddStudentDialog user={user} />
+                        </div>
+                        <TabsContent value="students" className="p-6">
+                            <Suspense fallback={<LoadingFallback />}>
+                                <StudentsDashboard searchTerm={searchTerm} user={user} />
+                            </Suspense>
+                        </TabsContent>
+                        <TabsContent value="volunteers" className="p-6">
+                            <Suspense fallback={<LoadingFallback />}>
+                               <VolunteersDashboard searchTerm={searchTerm} user={user} />  
+                            </Suspense>
+                        </TabsContent>
+                        <TabsContent value="faculty" className="p-6">
+                            <Suspense fallback={<LoadingFallback />}>
+                                <FacultyDashboard searchTerm={searchTerm} user={user} />
+                            </Suspense>
+                        </TabsContent>
+                    </Tabs>
+                ) : (
+                    <div className="w-full">
+                        <div className="flex justify-between items-center mb-4">
+                            <Select defaultValue="students" onValueChange={(value) => setSelectedTab(value)}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="students">Students</SelectItem>
+                                    <SelectItem value="volunteers">Volunteers</SelectItem>
+                                    <SelectItem value="faculty">Faculty</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <AddStudentDialog user={user} />
+                        </div>
+                        <div className="mt-4">
+                            {selectedTab === 'students' && (
+                                <Suspense fallback={<LoadingFallback />}>
                                     <MobileStudentsDashboard searchTerm={searchTerm} user={user} />
-                            }
-                        </Suspense>
-                    </TabsContent>
-                    <TabsContent value="volunteers" className="p-6">
-                        <Suspense fallback={<LoadingFallback />}>
-                            <VolunteersDashboard searchTerm={searchTerm} user={user} />
-                        </Suspense>
-                    </TabsContent>
-                    <TabsContent value="faculty" className="p-6">
-                        <Suspense fallback={<LoadingFallback />}>
-                            <FacultyDashboard searchTerm={searchTerm} user={user} />
-                        </Suspense>
-                    </TabsContent>
-                </Tabs>
+                                </Suspense>
+                            )}
+                            {selectedTab === 'volunteers' && (
+                                <Suspense fallback={<LoadingFallback />}>
+                                   <MobileVolunteersDashboard searchTerm={searchTerm} user={user} />
+                                </Suspense>
+                            )}
+                            {selectedTab === 'faculty' && (
+                                <Suspense fallback={<LoadingFallback />}>
+                                    <FacultyDashboard searchTerm={searchTerm} user={user} />
+                                </Suspense>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
