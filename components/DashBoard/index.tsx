@@ -51,12 +51,15 @@ export default function Dashboard({ user }: { user: IUser | null }) {
     return (
         <div className="container mx-auto p-8 relative">
             <h1 className="text-3xl font-bold mb-6">Bihaan 2024 Dashboard</h1>
-            <UserMenu
-                firstLinkHref="/logs"
-                firstLinkLabel="Logs"
-                secondLinkHref="/contact"
-                secondLinkLabel="Contact"
-            />
+            {isDesktop &&
+                <UserMenu
+                    firstLinkHref="/logs"
+                    firstLinkLabel="Logs"
+                    secondLinkHref="/contact"
+                    secondLinkLabel="Contact"
+                />
+            }
+
             <div className="mb-6">
                 <div className="relative">
                     <Input
@@ -79,7 +82,7 @@ export default function Dashboard({ user }: { user: IUser | null }) {
                         </TabsList>
                         <AddStudentDialog user={user} />
                     </div>
-                    <TabsContent value="students" className={`${isDesktop && "p-6"  }`}>
+                    <TabsContent value="students" className={`${isDesktop && "p-6"}`}>
                         <Suspense fallback={<LoadingFallback />}>
                             {
                                 isDesktop ?
