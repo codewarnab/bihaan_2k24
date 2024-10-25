@@ -70,7 +70,7 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
                 .insert([
                     {
                         ...data,
-                        id:id,
+                        id: id,
                         phone: parseInt(data.phone, 10),
                         food: false,
                         merch: false,
@@ -102,7 +102,12 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
             toast.error(error.message)
         } finally {
             setIsLoading(false)
-        } 
+        }
+    }
+
+    const handleCancel = () => {
+        form.reset()
+        setIsOpen(false)
     }
 
     return (
@@ -246,6 +251,9 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
                             />
                         </div>
                         <DialogFooter>
+                            <Button type="button" variant="outline" onClick={handleCancel}>
+                                Cancel
+                            </Button>
                             <Button type="submit" disabled={isLoading}>
                                 {isLoading ? 'Adding...' : 'Add Student'}
                             </Button>

@@ -92,7 +92,9 @@ export default function Dashboard({ user }: { user: IUser | null }) {
                                 <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
                                 <TabsTrigger value="faculty">Faculty</TabsTrigger>
                             </TabsList>
-                            <AddStudentDialog user={user} />
+                            {selectedTab === 'students' &&     
+                                <AddStudentDialog user={user} />
+                            }
                         </div>
                         <TabsContent value="students" className="p-6">
                             <Suspense fallback={<LoadingFallback />}>
