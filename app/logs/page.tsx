@@ -154,7 +154,7 @@ export default function EventLogs() {
                             </DropdownMenuCheckboxItem>
                             <DropdownMenuCheckboxItem
                                 checked={selectedFilter === "Added new volunteer"}
-                                onCheckedChange={() => handleFilterChange("Added new student")}
+                                onCheckedChange={() => handleFilterChange("Added new volunteer")}
                             >
                                 Added new volunteer
                             </DropdownMenuCheckboxItem>
