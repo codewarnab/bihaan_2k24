@@ -20,7 +20,7 @@ import { Log } from "@/lib/types/log";
 export default function EventLogs() {
     const [logs, setLogs] = useState<Log[]>([]);
     const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
-    type ActionFilter = "all" | "food collected" | "merchandise collected" | "Food  collected for Volunteer" | "Food  collected for faculty" | "Added new student" ;
+    type ActionFilter = "all" | "food collected" | "merchandise collected" | "Food  collected for Volunteer" | "Food  collected for faculty" | "Added new student" | "Added new volunteer" ;
     type TimeFilter = "all" | "last 1 hour" | "last 2 hours" | "last 3 hours" | "last 6 hours";
 
     const [selectedFilter, setSelectedFilter] = useState<ActionFilter>("all");
@@ -151,6 +151,12 @@ export default function EventLogs() {
                                 onCheckedChange={() => handleFilterChange("Added new student")}
                             >
                                 Added new student
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                                checked={selectedFilter === "Added new volunteer"}
+                                onCheckedChange={() => handleFilterChange("Added new student")}
+                            >
+                                Added new volunteer
                             </DropdownMenuCheckboxItem>
                             
                         </DropdownMenuContent>

@@ -28,7 +28,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 
-interface AddStudentDialogProps {
+interface AddVolunteerDialogProps {
     user: IUser | null
 }
 
@@ -38,13 +38,12 @@ const formSchema = z.object({
     email: z.string().email({ message: "Invalid email address." }),
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
     phone: z.string().regex(/^\d{10}$/, { message: "Phone number must be 10 digits." }),
-    tshirt_size: z.enum(["XS", "S", "M", "L", "XL", "XXL"], { required_error: "Please select a T-shirt size." }),
     veg_nonveg: z.enum(["Veg", "Non-Veg"], { required_error: "Please select a preference." }),
 })
 
 type FormData = z.infer<typeof formSchema>
 
-export default function AddStudentDialog({ user }: AddStudentDialogProps) {
+export default function AddVolunteerDialog({ user }: AddVolunteerDialogProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
 
@@ -56,7 +55,6 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
             email: '',
             name: '',
             phone: '',
-            tshirt_size: undefined,
             veg_nonveg: undefined,
         },
     })
@@ -66,14 +64,13 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
         try {
             const id = Date.now()
             const { error } = await supabase
-                .from('people')
+                .from('volunteers')
                 .insert([
                     {
                         ...data,
                         id: id,
                         phone: parseInt(data.phone, 10),
                         food: false,
-                        merch: false,
                         status: 'pending',
                         reason: '',
                         qrcode: '',
@@ -82,14 +79,14 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
 
             if (error) throw error
 
-            toast.success('Student added successfully!')
+            toast.success('Volunteer added successfully!')
             const { error: logError } = await supabase
                 .from('logs')
                 .insert({
                     organizer_name: user?.name || 'Unknown',
                     email: user?.email || 'Unknown',
-                    actionType: 'Added new student',
-                    fresher_roll: data.college_roll
+                    actionType: 'Added new volunteer',
+                    volunteer_roll: data.college_roll
                 });
 
             if (logError) {
@@ -98,7 +95,7 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
             form.reset()
             setIsOpen(false)
         } catch (error) {
-            console.error('Error adding student:', error)
+            console.error('Error adding volunteer:', error)
             toast.error(error.message)
         } finally {
             setIsLoading(false)
@@ -113,13 +110,13 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">Add Student</Button>
+                <Button variant="outline">Add Volunteer</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[700px]">
                 <DialogHeader>
-                    <DialogTitle>Add New Student</DialogTitle>
+                    <DialogTitle>Add New Volunteer</DialogTitle>
                     <DialogDescription>
-                        Enter the details of the new student here. Click save when you&apos;re done.
+                        Enter the details of the new volunteer here. Click save when you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -224,38 +221,13 @@ export default function AddStudentDialog({ user }: AddStudentDialogProps) {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="tshirt_size"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>T-Shirt Size</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select size" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="XS">XS</SelectItem>
-                                                <SelectItem value="S">S</SelectItem>
-                                                <SelectItem value="M">M</SelectItem>
-                                                <SelectItem value="L">L</SelectItem>
-                                                <SelectItem value="XL">XL</SelectItem>
-                                                <SelectItem value="XXL">XXL</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
                         </div>
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={handleCancel} className='pb-2' >
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={isLoading}>
-                                {isLoading ? 'Adding...' : 'Add Student'}
+                                {isLoading ? 'Adding...' : 'Add Volunteer'}
                             </Button>
                         </DialogFooter>
                     </form>

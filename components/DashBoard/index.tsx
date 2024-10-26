@@ -23,6 +23,7 @@ import AddStudentDialog from '@/components/DashBoard/AddStudentForm'
 import { useIsDesktop } from '@/hooks/useIsDesktop'
 import MobileStudentsDashboard from '@/components/DashBoard/MobileStudentDashbaord'
 import MobileVolunteersDashboard from '@/components/DashBoard/MobileVolunteerDashboard'
+import AddVolunteerDialog from './AddVolunteerForm'
 
 function LoadingFallback() {
     return (
@@ -60,7 +61,7 @@ export default function Dashboard({ user }: { user: IUser | null }) {
     }
 
     return (
-        <div className="container mx-auto p-7 relative">
+        <div className="container mx-auto lg:p-8 p-7 relative">
             <h1 className="text-3xl sm:text-2xl font-bold mb-6">Bihaan 2024 Dashboard</h1>
             {isDesktop &&
                 <UserMenu
@@ -92,9 +93,12 @@ export default function Dashboard({ user }: { user: IUser | null }) {
                                 <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
                                 <TabsTrigger value="faculty">Faculty</TabsTrigger>
                             </TabsList>
-                            {selectedTab === 'students' &&     
+                            {selectedTab === 'students' &&
                                 <AddStudentDialog user={user} />
                             }
+                            {selectedTab === 'volunteers' && user.isGod && (
+                                <AddVolunteerDialog user={user} />
+                            )}
                         </div>
                         <TabsContent value="students" className="p-6">
                             <Suspense fallback={<LoadingFallback />}>
@@ -103,7 +107,7 @@ export default function Dashboard({ user }: { user: IUser | null }) {
                         </TabsContent>
                         <TabsContent value="volunteers" className="p-6">
                             <Suspense fallback={<LoadingFallback />}>
-                               <VolunteersDashboard searchTerm={searchTerm} user={user} />  
+                                <VolunteersDashboard searchTerm={searchTerm} user={user} />
                             </Suspense>
                         </TabsContent>
                         <TabsContent value="faculty" className="p-6">
@@ -125,7 +129,10 @@ export default function Dashboard({ user }: { user: IUser | null }) {
                                     <SelectItem value="faculty">Faculty</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <AddStudentDialog user={user} />
+                            {selectedTab === 'students' && <AddStudentDialog user={user} />}
+                            {selectedTab === 'volunteers' && user.isGod && (
+                                <AddVolunteerDialog user={user} />
+                            )}
                         </div>
                         <div className="mt-4">
                             {selectedTab === 'students' && (
@@ -135,7 +142,7 @@ export default function Dashboard({ user }: { user: IUser | null }) {
                             )}
                             {selectedTab === 'volunteers' && (
                                 <Suspense fallback={<LoadingFallback />}>
-                                   <MobileVolunteersDashboard searchTerm={searchTerm} user={user} />
+                                    <MobileVolunteersDashboard searchTerm={searchTerm} user={user} />
                                 </Suspense>
                             )}
                             {selectedTab === 'faculty' && (
