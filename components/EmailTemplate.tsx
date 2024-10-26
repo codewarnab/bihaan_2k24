@@ -57,8 +57,8 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                 color: '#ff00ff',
                 fontSize: 'clamp(14px, 3vw, 18px)'
             }}>
-                <p style={{ margin: '5px 0' }}>DATE :  24-10-2024</p>
-                <p style={{ margin: '5px 0' }}>VENUE : RCCIIT College Campus Building</p>
+                <p style={{ margin: '5px 0' }}>DATE :  29-10-2024</p>
+                <p style={{ margin: '5px 0' }}>VENUE : College Football Ground</p>
             </div>
 
             <p style={{
@@ -81,11 +81,12 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                 <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
                     {emailData.isVolunteer ? (
                         <>
-                            <li>Volunteers are requested to report at the venue by 8:00 AM</li>
+                            <li>Volunteers are requested to report at the venue by 8:30 AM</li>
                         </>
                     ) : (
                         <>
-                            <li>Students are requested to report at the venue by 10:00 AM</li>
+                            <li>Students are requested to report at the venue by 9:30 AM</li>
+                            <li>Dress code: Ethnic</li>
                         </>
                     )
                     }
@@ -144,7 +145,7 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                 <p style={{ margin: '2px 0' }}>Ankita Dhara  (Tech AGS) - 8820534958</p>
                 {emailData.isVolunteer && (
                     <p style={{ margin: '2px 0' }}>Arnab Mondal (Technical Queries) - 6291912672</p>
-                 )
+                )
                 }
             </div>
         </div>

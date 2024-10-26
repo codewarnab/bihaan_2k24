@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
 
         // Send the email with the QR code attached 
         try {
-            const emailSubject = type === 'student' ? `${person.name}  BIHAAN 2024-25 PASS Details ` : `${person.name} BIHAAN 2024-25 VOLUNTEER PASS Details`;
+            const emailSubject = type === 'student' ? `${person.name}  BIHAAN 2024-25 PASS  ` : `${person.name} BIHAAN 2024-25 VOLUNTEER PASS `;
             const emailData = {
                 name: person.name,
                 roll: person.college_roll,
