@@ -158,6 +158,7 @@ export async function POST(req: NextRequest) {
                 }
             ]);
             console.log("Email sent to:", person.email);
+            await supabase.from(table).update({ reason: "" }).eq("id", id);
         } catch (error) {
             console.error("Error sending email:", error);
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
