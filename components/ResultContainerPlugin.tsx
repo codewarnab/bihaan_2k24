@@ -19,6 +19,7 @@ import { markMerchandiseCollected } from '@/utils/functions/students/markAsMerch
 import { formatDistanceToNow } from 'date-fns';
 import { Log } from '@/lib/types/log'
 import { markFoodCollectedVolunteer } from "@/utils/functions/volunteers/markFoodCollected"
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 
 type ScanResult = {
@@ -195,38 +196,48 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
                         Scan Again
                     </Button>
 
-                    {status &&  (
-                        <>
-                            <Button onClick={() => {
-                                if (scanResult) {
-                                    if (scanResult.isVolunteer) {
-                                        markFoodCollectedVolunteer(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll, user);
-                                    } else {
-                                        markFoodCollected(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
-                                    }
-                                }
-                            }} className="w-full"
-                                disabled={status.food}
-                            >
-                                <Utensils className="w-4 h-4 mr-2" />
-                                {status.food ? 'Food Collected' : 'Mark Food as Collected'}
-                            </Button>
-
-                            { scanResult && !scanResult.isVolunteer && (
-                                <Button
-                                    onClick={() => {
-                                        if (scanResult) {
-                                            markMerchandiseCollected(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
+                    {status && status.college_roll === 'disabled' ? (
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Discarded QR Attachment</AlertTitle>
+                            <AlertDescription>
+                                The organizers have discarded this QR attachment. No actions can be performed.
+                            </AlertDescription>
+                        </Alert>
+                    ) : (
+                        status && (
+                            <>
+                                <Button onClick={() => {
+                                    if (scanResult) {
+                                        if (scanResult.isVolunteer) {
+                                            markFoodCollectedVolunteer(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll, user);
+                                        } else {
+                                            markFoodCollected(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
                                         }
-                                    }}
-                                    className="w-full"
-                                    disabled={status.merch}
+                                    }
+                                }} className="w-full"
+                                    disabled={status.food}
                                 >
-                                    <Shirt className="w-4 h-4 mr-2" />
-                                    {status.merch ? 'Merch Collected' : 'Mark Merch as Collected'}
+                                    <Utensils className="w-4 h-4 mr-2" />
+                                    {status.food ? 'Food Collected' : 'Mark Food as Collected'}
                                 </Button>
-                            )}
-                        </>
+
+                                {scanResult && !scanResult.isVolunteer && (
+                                    <Button
+                                        onClick={() => {
+                                            if (scanResult) {
+                                                markMerchandiseCollected(scanResult.id, status, setStatus, user?.name || 'Unknown', user?.email || 'Unknown', status.college_roll);
+                                            }
+                                        }}
+                                        className="w-full"
+                                        disabled={status.merch}
+                                    >
+                                        <Shirt className="w-4 h-4 mr-2" />
+                                        {status.merch ? 'Merch Collected' : 'Mark Merch as Collected'}
+                                    </Button>
+                                )}
+                            </>
+                        )
                     )}
                 </DrawerFooter>
             </DrawerContent>

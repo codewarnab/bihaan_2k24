@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 export const markMerchandiseCollected = async (
     id: number,
-    studentStatus: { food: boolean, merch: boolean } | null,
+    studentStatus: { food: boolean, merch: boolean  } | null,
     setStudentStatus: React.Dispatch<React.SetStateAction<{ food: boolean, merch: boolean, college_roll:string } | null>>,
     organizer_name: string,
     organizer_email: string,
