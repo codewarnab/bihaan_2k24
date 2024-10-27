@@ -97,10 +97,11 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
                 }
             } catch (error) {
                 console.error("Failed to parse QR code data:", error)
-                toast.error("Failed to parse QR code data. Please try scanning again.")
+                toast.error("Failed to parse QR code data or it is not a valid QR code. Please try again.");
+                handleScanAgain()
             }
         }
-    }, [fetchStatus, results]);
+    }, [fetchStatus, results, handleScanAgain]);
 
     
 
