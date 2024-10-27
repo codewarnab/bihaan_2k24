@@ -54,11 +54,16 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
 
             <div style={{
                 marginBottom: '20px',
-                color: '#ff00ff',
                 fontSize: 'clamp(14px, 3vw, 18px)'
             }}>
-                <p style={{ margin: '5px 0' }}>DATE :  29-10-2024</p>
-                <p style={{ margin: '5px 0' }}>VENUE : College Football Ground</p>
+                <p style={{ margin: '5px 0' }}>
+                    <span style={{ color: '#ffff00' }}>DATE : </span>
+                    <span style={{ color: '#ffffff' }}>29-10-2024</span>
+                </p>
+                <p style={{ margin: '5px 0' }}>
+                    <span style={{ color: '#ffff00' }}>VENUE : </span>
+                    <span style={{ color: '#ffffff' }}>College Football Ground</span>
+                </p>
             </div>
 
             <p style={{
@@ -85,7 +90,7 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                         </>
                     ) : (
                         <>
-                            <li>Students are requested to report at the venue by 9:30 AM</li>
+                            <li style={{ marginBottom: '2px' }}>Students are requested to report at the venue by 9:30 AM</li>
                             <li>Dress code: Ethnic</li>
                         </>
                     )
@@ -108,9 +113,10 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                        color: '#E1306C',
+                        color: '#ffffff',
                         fontWeight: 'bold',
                         textDecoration: 'none',
+                        textShadow: '0 0 5px rgba(0, 0, 0, 0.5)'
                     }}
                 >
                     Follow us on Instagram @bihaan_rcciit
