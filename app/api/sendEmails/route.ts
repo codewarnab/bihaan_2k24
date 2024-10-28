@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
             isVolunteer,
             ...(type === 'student' && { tshirt_size: (person as StudentData).tshirt_size }),
             ...(isVolunteer && { team: (person as VolunteerData).team }),
-            isLate: false ,
+            isLate: true  ,
         };
 
         // Generate a QR code with the prepared data
@@ -148,7 +148,8 @@ export async function POST(req: NextRequest) {
                 isVolunteer,
                 tshirt_size: type === 'student' ? (person as StudentData).tshirt_size : undefined,
                 qrCodeUrl: publicURL,
-                team: isVolunteer ? (person as VolunteerData).team : undefined
+                team: isVolunteer ? (person as VolunteerData).team : undefined,
+                isLate : true,
             };
 
             await sendEmail(person.email, emailSubject, emailData, [

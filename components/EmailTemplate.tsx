@@ -10,6 +10,7 @@ type EmailData = {
     tshirt_size?: string | null
     team?: string
     qrCodeUrl: string
+    isLate?: boolean
 }
 
 export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
@@ -92,12 +93,18 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                         <>
                             <li style={{ marginBottom: '2px' }}>Students are requested to report at the venue by 9:30 AM</li>
                             <li>Dress code: Ethnic</li>
-                            <li style={{ marginTop: '2px' }}>
-                                Please collect your food packets at the mentioned time (schedule attached below)
-                            </li>
+                            {!emailData.isLate && (
+                                <li style={{ marginTop: '2px' }}>
+                                    Please collect your food packets at the mentioned time (schedule attached below)
+                                </li>
+                            )}
+                            {emailData.isLate && (
+                                <li style={{ marginTop: '2px' }}>
+                                    Please collect your food packets between 2.10 - 2.30 pm
+                                </li>
+                            )}
                         </>
-                    )
-                    }
+                    )}
                 </ul>
             </div>
 
@@ -154,8 +161,7 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                 <p style={{ margin: '2px 0' }}>Ankita Dhara  (Tech AGS) - 8820534958</p>
                 {emailData.isVolunteer && (
                     <p style={{ margin: '2px 0' }}>Arnab Mondal (Technical Queries) - 6291912672</p>
-                )
-                }
+                )}
             </div>
         </div>
     );

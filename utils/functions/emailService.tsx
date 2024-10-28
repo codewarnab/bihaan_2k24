@@ -32,13 +32,14 @@ type EmailData = {
     tshirt_size?: string | null ;
     qrCodeUrl: string;
     team?: string;
+    isLate: boolean;
 };
 
 export const sendEmail = async (to: string, subject: string, emailData: EmailData, attachments: Attachment[]) => {
     const emailContent = EmailTemplate({ emailData });
 
     try {
-        if (!emailData.isVolunteer) {
+        if (!emailData.isVolunteer && !emailData) {
             // Read the additional PNG file for students
             const additionalImagePath = path.join(process.cwd(), 'public', 'TimeSlot.png');
             const additionalImageContent = await fs.readFile(additionalImagePath);
