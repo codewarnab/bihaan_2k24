@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
             isVolunteer,
             ...(type === 'student' && { tshirt_size: (person as StudentData).tshirt_size }),
             ...(isVolunteer && { team: (person as VolunteerData).team }),
+            isLate: true ,
         };
 
         // Generate a QR code with the prepared data

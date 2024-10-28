@@ -2,6 +2,8 @@ import nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import EmailTemplate from '@/components/EmailTemplate';
 import { ReactElement } from 'react';
+import fs from 'fs/promises';
+import path from 'path';
 
 const transport = nodemailer.createTransport({
     service: 'gmail',
@@ -36,6 +38,18 @@ export const sendEmail = async (to: string, subject: string, emailData: EmailDat
     const emailContent = EmailTemplate({ emailData });
 
     try {
+        if (!emailData.isVolunteer) {
+            // Read the additional PNG file for students
+            const additionalImagePath = path.join(process.cwd(), 'public', 'TimeSlot.png');
+            const additionalImageContent = await fs.readFile(additionalImagePath);
+
+            attachments.push({
+                filename: 'Food_collection_time_slot.png',
+                content: additionalImageContent,
+                contentType: 'image/png'
+            });
+        }
+
         const info = await transport.sendMail({
             from: process.env.EMAIL_USER,
             to,

@@ -13,6 +13,10 @@ import { useUser } from '@/lib/store/user'
 import sendEmail from '@/utils/functions/sendEmail'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import Image from 'next/image'
+import { toast } from "sonner"
+
+
+const MAX_EMAILS_PER_BATCH = 200;
 
 interface StudentsDashboardProps {
     searchTerm: string
@@ -22,6 +26,7 @@ export default function StudentsTable({ searchTerm }: StudentsDashboardProps) {
     const [data, setData] = useState<StudentData[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [sendingAll, setSendingAll] = useState<boolean>(false)
+    const [emailsSentInCurrentBatch, setEmailsSentInCurrentBatch] = useState<number>(0)
     const { user } = useUser()
 
     useEffect(() => {
@@ -76,10 +81,11 @@ export default function StudentsTable({ searchTerm }: StudentsDashboardProps) {
 
     const handleSendEmail = async (id: number) => {
         try {
-            const response = await sendEmail(id, 'student', user) 
+            const response = await sendEmail(id, 'student', user)
             setData(prevData => prevData.map(item =>
                 item.id === id ? { ...item, status: response ? 'sent' : 'failed' } : item
             ));
+            setEmailsSentInCurrentBatch(prev => prev + 1)
         } catch (error) {
             console.error("Error in handleSendEmail:", error);
         }
@@ -87,10 +93,16 @@ export default function StudentsTable({ searchTerm }: StudentsDashboardProps) {
 
     const sendAllEmails = async () => {
         setSendingAll(true)
+        setEmailsSentInCurrentBatch(0)
         try {
             for (const student of filteredData) {
                 if (student.status !== "sent" && student.status !== "sending") {
-                    await handleSendEmail(student.id) // Call the function for each student
+                    await handleSendEmail(student.id)
+                    if (emailsSentInCurrentBatch >= MAX_EMAILS_PER_BATCH) {
+                        console.log(`Reached limit of ${MAX_EMAILS_PER_BATCH} emails. Stopping.`)
+                        toast.success(`Sent ${MAX_EMAILS_PER_BATCH} emails.`)
+                        break
+                    }
                 }
             }
         } catch (error) {
@@ -219,10 +231,10 @@ export default function StudentsTable({ searchTerm }: StudentsDashboardProps) {
                     <AutoSizer>
                         {({ height, width }) => (
                             <List
-                            height={height}
-                            width={width}
-                            itemCount={totalStudents}
-                            itemSize={50}
+                                height={height}
+                                width={width}
+                                itemCount={totalStudents}
+                                itemSize={50}
                             >
                                 {Row}
                             </List>

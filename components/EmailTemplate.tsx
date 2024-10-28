@@ -82,7 +82,7 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                 textAlign: 'left',
                 fontSize: 'clamp(14px, 3vw, 18px)'
             }}>
-                <p style={{ margin: '5px 0', color: '#ffffff' }}>Instructions :</p>
+                <p style={{ margin: '5px 0', color: '#ffffff', fontWeight: 'bold', }}>Instructions :</p>
                 <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
                     {emailData.isVolunteer ? (
                         <>
@@ -92,6 +92,9 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
                         <>
                             <li style={{ marginBottom: '2px' }}>Students are requested to report at the venue by 9:30 AM</li>
                             <li>Dress code: Ethnic</li>
+                            <li style={{ marginTop: '2px' }}>
+                                Please collect your food packets at the mentioned time (schedule attached below)
+                            </li>
                         </>
                     )
                     }
@@ -146,8 +149,8 @@ export default function EmailTemplate({ emailData }: { emailData: EmailData }) {
             }}>
                 <p style={{ margin: '5px 0' }}>For any Queries reach out to:</p>
                 <p style={{ margin: '2px 0' }}>Samprit Rup  (SPOC BIHAAN ) - 6371655296</p>
-                <p style={{ margin: '2px 0' }}>Basant Kumar Shaw (GS) - 7547627975</p>
-                <p style={{ margin: '2px 0' }}>Manish Biswas (Cultural AGS) - 9062342650</p>
+                <p style={{ margin: '2px 0' }}>Basant Kumar Shaw (GS) - 7547927975</p>
+                <p style={{ margin: '2px 0' }}>Manish Biswas (Cultural AGS) - 9062312650</p>
                 <p style={{ margin: '2px 0' }}>Ankita Dhara  (Tech AGS) - 8820534958</p>
                 {emailData.isVolunteer && (
                     <p style={{ margin: '2px 0' }}>Arnab Mondal (Technical Queries) - 6291912672</p>

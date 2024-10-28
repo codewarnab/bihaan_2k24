@@ -20,6 +20,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Log } from '@/lib/types/log'
 import { markFoodCollectedVolunteer } from "@/utils/functions/volunteers/markFoodCollected"
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 
 
 type ScanResult = {
@@ -33,6 +34,7 @@ type ScanResult = {
     id: number
     isVolunteer: boolean 
     team?: string
+    isLate? : boolean
 }
 
 type Result = {
@@ -137,6 +139,11 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
                 {scanResult ? (
                     <div className="p-4 space-y-4">
                         <h1 className="text-xl font-semibold">{scanResult.isVolunteer ? "Volunteer Details" : "Student Details"}</h1>
+                        {scanResult.isLate && (
+                            <Badge variant="destructive" className="bg-red-500">
+                                Late
+                            </Badge>
+                        )}
                         <div className="flex items-center space-x-2">
                             <QrCode className="w-5 h-5 text-primary" />
                             <span className="font-semibold">{scanResult.name}</span>
@@ -161,7 +168,7 @@ export default function Component({ results, handleScanAgain ,user}: { results: 
                         </div>
                         <div className="flex items-center space-x-2">
                             <Utensils className="w-5 h-5 text-primary" />
-                            <span>{scanResult.veg_nonveg === 'veg' ? 'Vegetarian' : 'Non-Vegetarian'}</span>
+                            <span>{scanResult.veg_nonveg.toLocaleLowerCase() === 'veg' ? 'Vegetarian' : 'Non-Vegetarian'}</span>
                         </div>
                         {scanResult && !scanResult.isVolunteer && (
                             <div className="flex items-center space-x-2">
