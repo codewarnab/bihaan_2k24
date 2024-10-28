@@ -11,6 +11,7 @@ import { toggleMerchandiseCollection } from "@/utils/functions/students/toggleMe
 import { supabase } from '@/lib/supabase-client'
 import { toggleFoodCollection } from '@/utils/functions/students/toggleFoodCollection'
 import { IUser } from '@/lib/types/user'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface StudentsDashboardProps {
     searchTerm: string
@@ -22,6 +23,7 @@ export default function StudentsDashboard({ searchTerm, user }: StudentsDashboar
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [merchLoadingIds, setMerchLoadingIds] = useState<Set<number>>(new Set())
     const [foodLoadingIds, setFoodLoadingIds] = useState<Set<number>>(new Set())
+    const [deptFilter, setDeptFilter] = useState<string>("all")
 
     useEffect(() => {
         const fetchData = async () => {
@@ -61,15 +63,23 @@ export default function StudentsDashboard({ searchTerm, user }: StudentsDashboar
 
     const filteredData = useMemo(() => {
         if (!data) return []
-        if (!searchTerm) return data
+        let filtered = data
 
-        return data.filter(item =>
-            (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) || // Safe access using `?.`
-            (item.college_roll?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-            (item.phone?.toString().includes(searchTerm) ?? false) ||
-            (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-        )
-    }, [data, searchTerm])
+        if (searchTerm) {
+            filtered = filtered.filter(item =>
+                (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+                (item.college_roll?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+                (item.phone?.toString().includes(searchTerm) ?? false) ||
+                (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+            )
+        }
+
+        if (deptFilter !== "all") {
+            filtered = filtered.filter(item => item.dept === deptFilter)
+        }
+
+        return filtered
+    }, [data, searchTerm, deptFilter])
 
     const totalStudents = filteredData.length
     const foodCollected = filteredData.filter(item => item.food).length
@@ -143,8 +153,25 @@ export default function StudentsDashboard({ searchTerm, user }: StudentsDashboar
 
     return (
         <div>
-            <div className="text-lg mb-4">
-                Total Students: {totalStudents}, Food Collected: {foodCollected}, Merchandise Collected: {merchandiseCollected}
+            <div className="flex justify-between items-center mb-4">
+                <div className="text-lg">
+                    Total Students: {totalStudents}, Food Collected: {foodCollected}, Merchandise Collected: {merchandiseCollected}
+                </div>
+                <div className="hidden md:block">
+                    <Select value={deptFilter} onValueChange={setDeptFilter}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Filter by department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Departments</SelectItem>
+                            <SelectItem value="CSE">CSE</SelectItem>
+                            <SelectItem value="ECE">ECE</SelectItem>
+                            <SelectItem value="EE">EE</SelectItem>
+                            <SelectItem value="IT">IT</SelectItem>
+                            <SelectItem value="BCA">BCA</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
             <div className="overflow-x-auto">
                 <div className="flex items-center font-bold border-b bg-gray-100 rounded-sm">

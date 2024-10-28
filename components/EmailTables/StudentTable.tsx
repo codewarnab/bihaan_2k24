@@ -14,7 +14,7 @@ import sendEmail from '@/utils/functions/sendEmail'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import Image from 'next/image'
 import { toast } from "sonner"
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const MAX_EMAILS_PER_BATCH = 200;
 
@@ -28,6 +28,7 @@ export default function StudentsTable({ searchTerm }: StudentsDashboardProps) {
     const [sendingAll, setSendingAll] = useState<boolean>(false)
     const [emailsSentInCurrentBatch, setEmailsSentInCurrentBatch] = useState<number>(0)
     const { user } = useUser()
+    const [statusFilter, setStatusFilter] = useState<string>("all")
 
     useEffect(() => {
         const fetchData = async () => {
@@ -67,17 +68,28 @@ export default function StudentsTable({ searchTerm }: StudentsDashboardProps) {
 
     const filteredData = useMemo(() => {
         if (!data) return []
-        if (!searchTerm) return data
+        let filtered = data
 
-        return data.filter(item =>
-            (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-            (item.college_roll?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-            (item.phone?.toString().includes(searchTerm) ?? false) ||
-            (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
-        )
-    }, [data, searchTerm])
+        if (searchTerm) {
+            filtered = filtered.filter(item =>
+                (item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+                (item.college_roll?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+                (item.phone?.toString().includes(searchTerm) ?? false) ||
+                (item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+            )
+        }
+
+        if (statusFilter !== "all") {
+            filtered = filtered.filter(item => item.status === statusFilter)
+        }
+
+        return filtered
+    }, [data, searchTerm, statusFilter])
 
     const totalStudents = filteredData.length
+    const sentCount = filteredData.filter(item => item.status === "sent").length
+    const failedCount = filteredData.filter(item => item.status === "failed").length
+    const pendingCount = filteredData.filter(item => item.status !== "sent" && item.status !== "failed").length
 
     const handleSendEmail = async (id: number) => {
         try {
@@ -217,6 +229,20 @@ export default function StudentsTable({ searchTerm }: StudentsDashboardProps) {
                 >
                     {sendingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send All"}
                 </Button>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="sent">Sent</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="failed">Failed</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="mb-4 text-sm text-muted-foreground">
+                Total: {totalStudents} | Sent: {sentCount} | Failed: {failedCount} | Pending: {pendingCount}
             </div>
             <div className="overflow-x-auto">
                 <div className="flex items-center font-bold border-b bg-gray-100 rounded-sm">
